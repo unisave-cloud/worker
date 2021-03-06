@@ -44,6 +44,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="deploy.sh" />
     <Content Include="Dockerfile" />
     <Content Include="initialization.sh" />
     <Content Include="Makefile" />
