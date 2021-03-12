@@ -48,10 +48,14 @@ namespace UnisaveSandbox
 
         private static void Execute()
         {
-            // TODO: authenticate the caller via HMAC signature:
-            // https://github.com/openfaas/workshop
-        
-            Console.WriteLine("TODO ... execution");
+            // TODO: authenticate the request
+            
+            string executionParameters = Console.In.ReadToEnd();
+            
+            var executor = new Executor();
+            var executionResponse = executor.ExecuteBackend(executionParameters);
+            
+            Console.Write(executionResponse);
         }
 
         private static void PrintUsage()

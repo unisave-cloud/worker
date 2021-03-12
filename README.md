@@ -6,7 +6,7 @@ run game backends.
 The behaviour is as follows:
 
 1. The Unisave system asks OpenFaas to create a new function
-   corresponding to a certain backend ID (say `backend_foobar` function)
+   corresponding to a certain backend ID (say `backend-foobar` function)
 2. OpenFaas creates new instance of the function and during the startup
    process the function downloads proper backend files
 3. The function is now ready to receive execution requests
@@ -21,4 +21,32 @@ The execution is then invoked by the watchdog process by calling:
 
     $ sandbox.exe exec
 
-The executing uses standard input/output as any usual faas function.
+The executing uses standard input/output like any other faas function.
+
+
+## Execution API
+
+`POST /function/backend-foobar`
+
+The request to execute a game backend contains exactly the
+`executionParameters` value as defined in the Unisave Framework. So the
+request body is passed to the framework as-is. Any additional values
+have to be passed using HTTP headers.
+
+Example `executionParameters` for calling a facet:
+
+```json
+{
+    "method": "facet-call",
+    "methodParameters": {
+        "facetName": "MyFavet",
+        "methodName": "MyMethod",
+        "arguments": ["foo", 42],
+        "sessionId": "DpVNxtkzCBqDx-o="
+    },
+    "env": "FOO=bar\nBAZ=asd\n"
+}
+```
+
+The response is then exactly the `executionResult` returned by the
+Unisave Framework.
