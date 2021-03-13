@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Net.Http;
 using System.Threading.Tasks;
 
@@ -50,11 +51,32 @@ namespace UnisaveSandbox
         {
             // TODO: authenticate the request
             
+            // receive function request
             string executionParameters = Console.In.ReadToEnd();
+
+            // prepare response variable
+            string executionResponse;
             
-            var executor = new Executor();
-            var executionResponse = executor.ExecuteBackend(executionParameters);
-            
+            using (var logFile = new FileStream("stdout.log", FileMode.Append))
+            {
+                // redirect standard output to a log file (append)
+                Console.SetOut(new StreamWriter(logFile));
+
+                // perform the execution
+                var executor = new Executor();
+                executionResponse = executor.ExecuteBackend(
+                    executionParameters
+                );
+            }
+                
+            // recover standard output
+            var stdout = new StreamWriter(
+                Console.OpenStandardOutput()
+            );
+            stdout.AutoFlush = true;
+            Console.SetOut(stdout);
+
+            // send function response
             Console.Write(executionResponse);
         }
 
