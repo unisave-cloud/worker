@@ -1,7 +1,6 @@
-﻿using System;
-using System.IO;
-using System.Net.Http;
-using System.Threading.Tasks;
+using System;
+using Mono.Unix;
+using Mono.Unix.Native;
 
 namespace UnisaveSandbox
 {
@@ -9,88 +8,43 @@ namespace UnisaveSandbox
     {
         public static void Main(string[] args)
         {
-            if (args.Length <= 0)
-            {
-                PrintUsage();
-                return;
-            }
-
-            switch (args[0])
-            {
-                case "init":
-                    Initialize(args).GetAwaiter().GetResult();
-                    break;
-                
-                case "exec":
-                    Execute();
-                    break;
-                
-                default:
-                    PrintUsage();
-                    break;
-            }
-        }
-
-        private static async Task Initialize(string[] args)
-        {
-            if (args.Length != 2)
-            {
-                PrintUsage();
-                return;
-            }
-
-            using (var http = new HttpClient())
-            {
-                var initializer = new Initializer(http);
-
-                await initializer.InitializeSandbox(args[1]);
-            }
-        }
-
-        private static void Execute()
-        {
-            // TODO: authenticate the request
+            Config config = Config.LoadFromEnv();
             
-            // receive function request
-            string executionParameters = Console.In.ReadToEnd();
-
-            // prepare response variable
-            string executionResponse;
-            
-            using (var logFile = new FileStream("stdout.log", FileMode.Append))
+            using (var server = new SandboxServer(config))
             {
-                // redirect standard output to a log file (append)
-                Console.SetOut(new StreamWriter(logFile));
-
-                // perform the execution
-                var executor = new Executor();
-                executionResponse = executor.ExecuteBackend(
-                    executionParameters
-                );
-            }
+                server.Start();
                 
-            // recover standard output
-            var stdout = new StreamWriter(
-                Console.OpenStandardOutput()
-            );
-            stdout.AutoFlush = true;
-            Console.SetOut(stdout);
-
-            // send function response
-            Console.Write(executionResponse);
+                WaitForTermination();
+            }
+        }
+        
+        private static void WaitForTermination()
+        {
+            if (IsRunningOnMono())
+            {
+                UnixSignal.WaitAny(GetUnixTerminationSignals());
+            }
+            else
+            {
+                Console.WriteLine("Press enter to stop the application.");
+                Console.ReadLine();
+            }
+        }
+        
+        private static bool IsRunningOnMono()
+        {
+            return Type.GetType("Mono.Runtime") != null;
         }
 
-        private static void PrintUsage()
+        private static UnixSignal[] GetUnixTerminationSignals()
         {
-            Console.WriteLine("Usage: sandbox.exe [command] [ARGUMENTS...]");
-            Console.WriteLine("Commands:");
-            Console.WriteLine("");
-            Console.WriteLine("init [recipe-url]");
-            Console.WriteLine("    Initializes the sandbox during startup");
-            Console.WriteLine("");
-            Console.WriteLine("exec");
-            Console.WriteLine("    Executes a request on stdin in the " +
-                              "initialized sandbox, printing output to stdout");
+            return new[]
+            {
+                new UnixSignal(Signum.SIGINT),
+                new UnixSignal(Signum.SIGTERM),
+                new UnixSignal(Signum.SIGQUIT),
+                new UnixSignal(Signum.SIGHUP)
+            };
         }
     }
 }

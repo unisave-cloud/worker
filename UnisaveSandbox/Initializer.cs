@@ -68,12 +68,12 @@ namespace UnisaveSandbox
             if (path != null)
                 throw new Exception("Recipe ended unexpectedly");
             
-            Console.WriteLine("Sandbox initialized.");
+            Log.Info("Sandbox initialized.");
         }
 
         private async Task DownloadFile(string path, string url)
         {
-            Console.WriteLine($"Downloading '{path}'...");
+            Log.Info($"Downloading '{path}'...");
             
             var response = await http.GetAsync(url);
             
