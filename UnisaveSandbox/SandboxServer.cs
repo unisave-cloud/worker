@@ -14,17 +14,20 @@ namespace UnisaveSandbox
     public class SandboxServer : IDisposable
     {
         private readonly Config config;
-        
+
+        private readonly Initializer initializer;
         private readonly HttpClient httpClient;
         private readonly HttpServer httpServer;
         
         public SandboxServer(Config config)
         {
             this.config = config;
-
-            httpClient = new HttpClient();
             
-            httpServer = new HttpServer(config.Port, new Router());
+            httpClient = new HttpClient();
+
+            initializer = new Initializer(httpClient);
+            
+            httpServer = new HttpServer(config.Port, new Router(initializer));
         }
         
         /// <summary>
@@ -36,7 +39,7 @@ namespace UnisaveSandbox
 
             // TODO: should I accept HTTP requests before being initialized ???
             // -> what does the watchdog do if the fprocess crashes?
-            InitializeAsync().GetAwaiter().GetResult();;
+            InitializeAsync().GetAwaiter().GetResult();
             
             httpServer.Start();
             
@@ -59,16 +62,10 @@ namespace UnisaveSandbox
         /// </summary>
         private async Task InitializeAsync()
         {
-            if (config.InitializationRecipeUrl == null) // dummy initialization
-            {
-                Log.Debug("TODO: implement dummy initialization");
-            }
-            else // real initialization
-            {
-                var initializer = new Initializer(httpClient);
-                
+            if (config.InitializationRecipeUrl == null)
+                Log.Info("Skipping startup sandbox initialization.");
+            else
                 await initializer.InitializeSandbox(config.InitializationRecipeUrl);
-            }
         }
 
         /// <summary>

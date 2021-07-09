@@ -8,6 +8,13 @@ namespace UnisaveSandbox.Http
 {
     public class Router
     {
+        private readonly Initializer initializer;
+
+        public Router(Initializer initializer)
+        {
+            this.initializer = initializer;
+        }
+
         /// <summary>
         /// Entrypoint into the router
         /// </summary>
@@ -63,10 +70,15 @@ namespace UnisaveSandbox.Http
         
         private void ExecutionRequest(HttpListenerContext context)
         {
-            // TODO: authenticate the request
-            // (not to prevent calls from outside, but to prevent calls
-            // from other sandboxes (other people than the owner of this sandbox))
-            
+            // initialize sandbox from header recipe
+            if (!initializer.Initialized)
+            {
+                string recipeUrl = context.Request.Headers["X-Unisave-Initialization-Recipe-Url"];
+
+                if (recipeUrl != null)
+                    initializer.InitializeSandbox(recipeUrl).GetAwaiter().GetResult();
+            }
+        
             // read the request
             string executionParameters;
             using (var reader = new StreamReader(

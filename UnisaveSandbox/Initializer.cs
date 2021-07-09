@@ -5,11 +5,19 @@ using System.Threading.Tasks;
 
 namespace UnisaveSandbox
 {
+    /// <summary>
+    /// Manages sandbox initialization
+    /// </summary>
     public class Initializer
     {
         private const string ExpectedRecipeHeader = "UNISAVE_SANDBOX_RECIPE v1";
         
         private readonly HttpClient http;
+
+        /// <summary>
+        /// Has this sandbox been initialized already?
+        /// </summary>
+        public bool Initialized { get; private set; } = false;
         
         public Initializer(HttpClient http)
         {
@@ -18,6 +26,13 @@ namespace UnisaveSandbox
 
         public async Task InitializeSandbox(string recipeUrl)
         {
+            if (Initialized)
+                throw new InvalidOperationException(
+                    "The sandbox was already initialized."
+                );
+            
+            Log.Info("Starting initialization...");
+
             var response = await http.GetAsync(recipeUrl);
 
             response.EnsureSuccessStatusCode();
@@ -26,6 +41,8 @@ namespace UnisaveSandbox
             {
                 await ImplementRecipe(new StreamReader(stream));
             }
+            
+            Initialized = true;
         }
 
         private async Task ImplementRecipe(StreamReader sr)

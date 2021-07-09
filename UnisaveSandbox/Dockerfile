@@ -28,6 +28,7 @@ WORKDIR /game
 ENV fprocess="mono --debug /sandbox/UnisaveSandbox.exe"
 ENV mode="http"
 ENV upstream_url="http://localhost:5000"
+ENV max_inflight=1
 ENV write_debug="false"
 
 ENV SANDBOX_SERVER_PORT=5000
