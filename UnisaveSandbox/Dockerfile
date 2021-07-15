@@ -1,12 +1,6 @@
-FROM ghcr.io/openfaas/of-watchdog:0.8.4 as watchdog
-
 # TODO: perform compilation here as well
 
 FROM mono:6.4.0
-
-# setup watchdog
-COPY --from=watchdog /fwatchdog /usr/bin/fwatchdog
-RUN chmod +x /usr/bin/fwatchdog
 
 # sandbox folder
 RUN mkdir -p /sandbox
@@ -25,22 +19,15 @@ USER sandbox_user
 WORKDIR /game
 
 # environment variables
-ENV fprocess="mono --debug /sandbox/UnisaveSandbox.exe"
-ENV mode="http"
-ENV upstream_url="http://localhost:5000"
-ENV max_inflight=1
-ENV write_debug="false"
-
-ENV SANDBOX_SERVER_PORT=5000
+ENV SANDBOX_SERVER_PORT=8080
 
 # ports
 EXPOSE 8080
-EXPOSE 8081
-EXPOSE 5000
 
 # healthcheck
-HEALTHCHECK --interval=3s CMD [ -e /tmp/.lock ] || exit 1
+# (not actually used by kubernetes)
+HEALTHCHECK --interval=3s CMD [ -e /tmp/.unisave-sandbox-lock ] || exit 1
 
 # entrypoint
-ENTRYPOINT ["fwatchdog"]
+ENTRYPOINT ["mono", "--debug", "/sandbox/UnisaveSandbox.exe"]
 CMD []

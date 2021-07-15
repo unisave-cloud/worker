@@ -42,6 +42,7 @@
   <ItemGroup>
     <Compile Include="Config.cs" />
     <Compile Include="Executor.cs" />
+    <Compile Include="HealthManager.cs" />
     <Compile Include="Http\HttpServer.cs" />
     <Compile Include="Http\Router.cs" />
     <Compile Include="Initializer.cs" />

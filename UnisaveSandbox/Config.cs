@@ -4,7 +4,7 @@ namespace UnisaveSandbox
 {
     public class Config
     {
-        public int Port { get; set; } = 5000;
+        public int Port { get; set; } = 8080;
 
         public string InitializationRecipeUrl { get; set; }
 

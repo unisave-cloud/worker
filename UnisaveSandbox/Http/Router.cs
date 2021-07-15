@@ -9,10 +9,12 @@ namespace UnisaveSandbox.Http
     public class Router
     {
         private readonly Initializer initializer;
+        private readonly HealthManager healthManager;
 
-        public Router(Initializer initializer)
+        public Router(Initializer initializer, HealthManager healthManager)
         {
             this.initializer = initializer;
+            this.healthManager = healthManager;
         }
 
         /// <summary>
@@ -39,6 +41,14 @@ namespace UnisaveSandbox.Http
                 // e.g. memory usage, queue size, etc...
                 context.Response.StatusCode = 200;
                 StringResponse(context, "TODO: status\n");
+                return Task.CompletedTask;
+            }
+            
+            // [health check]
+            if (context.Request.HttpMethod == "GET"
+                && context.Request.Url.AbsolutePath == "/_/health")
+            {
+                HealthCheckRequest(context);
                 return Task.CompletedTask;
             }
             
@@ -98,6 +108,20 @@ namespace UnisaveSandbox.Http
             // send the response
             context.Response.StatusCode = 200;
             StringResponse(context, executionResponse, "application/json");
+        }
+
+        private void HealthCheckRequest(HttpListenerContext context)
+        {
+            if (healthManager.IsHealthy())
+            {
+                context.Response.StatusCode = 200;
+                StringResponse(context, "OK\n");
+            }
+            else
+            {
+                context.Response.StatusCode = 503;
+                StringResponse(context, "Service Unavailable\n");
+            }
         }
         
         /// <summary>

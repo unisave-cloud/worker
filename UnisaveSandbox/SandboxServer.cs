@@ -15,6 +15,7 @@ namespace UnisaveSandbox
     {
         private readonly Config config;
 
+        private readonly HealthManager healthManager;
         private readonly Initializer initializer;
         private readonly HttpClient httpClient;
         private readonly HttpServer httpServer;
@@ -23,11 +24,19 @@ namespace UnisaveSandbox
         {
             this.config = config;
             
+            healthManager = new HealthManager();
+            
             httpClient = new HttpClient();
 
             initializer = new Initializer(httpClient);
             
-            httpServer = new HttpServer(config.Port, new Router(initializer));
+            httpServer = new HttpServer(
+                config.Port,
+                new Router(
+                    initializer,
+                    healthManager
+                )
+            );
         }
         
         /// <summary>
@@ -36,9 +45,9 @@ namespace UnisaveSandbox
         public void Start()
         {
             PrintStartupMessage();
+            
+            healthManager.Initialize();
 
-            // TODO: should I accept HTTP requests before being initialized ???
-            // -> what does the watchdog do if the fprocess crashes?
             InitializeAsync().GetAwaiter().GetResult();
             
             httpServer.Start();
@@ -77,6 +86,7 @@ namespace UnisaveSandbox
             
             httpClient?.Dispose();
             httpServer?.Stop();
+            healthManager?.Dispose();
             
             Log.Info("Bye.");
         }
