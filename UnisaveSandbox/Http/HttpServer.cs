@@ -97,11 +97,10 @@ namespace UnisaveSandbox.Http
                     "processing an HTTP request:\n" + e
                 );
             }
-            finally
-            {
-                // finish response sending
-                context.Response.OutputStream.Close();
-            }
+            
+            // NOTE: Do not close the response stream here, as some requests
+            // are handled asynchronously by other threads and so the request
+            // may still be processed.
         }
  
         public void Stop()

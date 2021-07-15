@@ -1,20 +1,20 @@
 using System;
-using System.IO;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+using UnisaveSandbox.Execution;
 
 namespace UnisaveSandbox.Http
 {
     public class Router
     {
-        private readonly Initializer initializer;
         private readonly HealthManager healthManager;
+        private readonly RequestQueue requestQueue;
 
-        public Router(Initializer initializer, HealthManager healthManager)
+        public Router(HealthManager healthManager, RequestQueue requestQueue)
         {
-            this.initializer = initializer;
             this.healthManager = healthManager;
+            this.requestQueue = requestQueue;
         }
 
         /// <summary>
@@ -30,7 +30,7 @@ namespace UnisaveSandbox.Http
             // [execution request] (GET or POST)
             if (context.Request.Url.AbsolutePath == "/")
             {
-                ExecutionRequest(context);
+                requestQueue.EnqueueRequest(context);
                 return Task.CompletedTask;
             }
             
@@ -77,38 +77,6 @@ namespace UnisaveSandbox.Http
             StringResponse(context, "404 - Page not found.\n");
             return Task.CompletedTask;
         }
-        
-        private void ExecutionRequest(HttpListenerContext context)
-        {
-            // initialize sandbox from header recipe
-            if (!initializer.Initialized)
-            {
-                string recipeUrl = context.Request.Headers["X-Unisave-Initialization-Recipe-Url"];
-
-                if (recipeUrl != null)
-                    initializer.InitializeSandbox(recipeUrl).GetAwaiter().GetResult();
-            }
-        
-            // read the request
-            string executionParameters;
-            using (var reader = new StreamReader(
-                context.Request.InputStream,
-                Encoding.UTF8
-            ))
-            {
-                executionParameters = reader.ReadToEnd();
-            }
-            
-            // perform the execution
-            var executor = new Executor();
-            string executionResponse = executor.ExecuteBackend(
-                executionParameters
-            );
-            
-            // send the response
-            context.Response.StatusCode = 200;
-            StringResponse(context, executionResponse, "application/json");
-        }
 
         private void HealthCheckRequest(HttpListenerContext context)
         {
@@ -130,7 +98,7 @@ namespace UnisaveSandbox.Http
         /// <param name="context">Request context</param>
         /// <param name="response">The actual string to send</param>
         /// <param name="contentType">What content type to present it as</param>
-        private void StringResponse(
+        public static void StringResponse(
             HttpListenerContext context,
             string response,
             string contentType = "text/plain"

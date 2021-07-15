@@ -24,10 +24,6 @@ ENV SANDBOX_SERVER_PORT=8080
 # ports
 EXPOSE 8080
 
-# healthcheck
-# (not actually used by kubernetes)
-HEALTHCHECK --interval=3s CMD [ -e /tmp/.unisave-sandbox-lock ] || exit 1
-
 # entrypoint
 ENTRYPOINT ["mono", "--debug", "/sandbox/UnisaveSandbox.exe"]
 CMD []

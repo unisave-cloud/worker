@@ -2,7 +2,7 @@ using System;
 using System.IO;
 using System.Reflection;
 
-namespace UnisaveSandbox
+namespace UnisaveSandbox.Execution
 {
     public class Executor
     {
