@@ -48,7 +48,17 @@ namespace UnisaveSandbox.Execution
                 if (context == null)
                     break;
                 
-                HandleRequest(context);
+                try
+                {
+                    HandleRequest(context);
+                }
+                catch (Exception e)
+                {
+                    Log.Error(
+                        "An exception occured when " +
+                        "processing an execution request:\n" + e
+                    );
+                }
             }
         }
 

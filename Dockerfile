@@ -1,12 +1,26 @@
-# TODO: perform compilation here as well
+############
+# BUILDING #
+############
+
+FROM mono:6.4.0 as builder
+
+RUN mkdir -p /sandbox-build
+COPY ./ /sandbox-build
+
+RUN msbuild -target:Rebuild -property:Configuration=Release /sandbox-build/UnisaveSandbox/UnisaveSandbox.csproj
+
+###########
+# RUNNING #
+###########
 
 FROM mono:6.4.0
 
 # sandbox folder
 RUN mkdir -p /sandbox
-COPY ./bin/Debug /sandbox
+COPY --from=builder /sandbox-build/UnisaveSandbox/bin/Release /sandbox
 
 # game folder
+# (part of the tmp folder, since the function will run with read-only filesystem)
 RUN mkdir -p /game
 
 # user
