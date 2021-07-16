@@ -16,6 +16,11 @@ namespace UnisaveSandbox
                 
                 WaitForTermination();
             }
+            
+            // if there was an execution timeout
+            // or the user started some rogue threads,
+            // this kills all of them:
+            Environment.Exit(0);
         }
         
         private static void WaitForTermination()

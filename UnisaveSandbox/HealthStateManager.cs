@@ -42,6 +42,8 @@ namespace UnisaveSandbox
         /// </summary>
         public void SetUnhealthy()
         {
+            Log.Warning("Becoming unhealthy...");
+            
             RemoveLockFileIfExists();
         }
 

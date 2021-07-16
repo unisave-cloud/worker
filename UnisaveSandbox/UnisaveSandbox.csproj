@@ -41,9 +41,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Config.cs" />
+    <Compile Include="Execution\ExecutionKernel.cs" />
+    <Compile Include="Execution\ExecutionRequest.cs" />
+    <Compile Include="Execution\ExecutionResponse.cs" />
     <Compile Include="Execution\Executor.cs" />
     <Compile Include="Execution\RequestConsumer.cs" />
     <Compile Include="Execution\RequestQueue.cs" />
+    <Compile Include="Execution\TimeoutWrapper.cs" />
     <Compile Include="HealthStateManager.cs" />
     <Compile Include="Http\HttpServer.cs" />
     <Compile Include="Http\Router.cs" />

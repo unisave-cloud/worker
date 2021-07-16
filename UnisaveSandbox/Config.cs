@@ -26,6 +26,11 @@ namespace UnisaveSandbox
         /// Maximum length of the synchronizing request queue
         /// </summary>
         public int MaxQueueLength { get; set; } = 20;
+
+        /// <summary>
+        /// Timeout for request execution in seconds
+        /// </summary>
+        public int RequestTimeoutSeconds { get; set; } = 5;
         
         
         /////////////
@@ -44,7 +49,8 @@ namespace UnisaveSandbox
                 Port = GetEnvInteger("SANDBOX_SERVER_PORT", d.Port),
                 InitializationRecipeUrl = GetEnvString("INITIALIZATION_RECIPE_URL"),
                 DummyInitialization = GetEnvBool("SANDBOX_DUMMY_INITIALIZATION", false),
-                MaxQueueLength = GetEnvInteger("MAX_QUEUE_LENGTH", d.MaxQueueLength)
+                MaxQueueLength = GetEnvInteger("MAX_QUEUE_LENGTH", d.MaxQueueLength),
+                RequestTimeoutSeconds = GetEnvInteger("REQUEST_TIMEOUT_SECONDS", d.RequestTimeoutSeconds)
             };
         }
 

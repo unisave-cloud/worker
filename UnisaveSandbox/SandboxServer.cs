@@ -20,6 +20,7 @@ namespace UnisaveSandbox
         private readonly Initializer initializer;
         private readonly RequestQueue requestQueue;
         private readonly RequestConsumer requestConsumer;
+        private readonly ExecutionKernel executionKernel;
         private readonly HttpClient httpClient;
         private readonly HttpServer httpServer;
         
@@ -31,7 +32,16 @@ namespace UnisaveSandbox
             httpClient = new HttpClient();
             initializer = new Initializer(httpClient);
             requestQueue = new RequestQueue(healthStateManager, config.MaxQueueLength);
-            requestConsumer = new RequestConsumer(requestQueue, initializer);
+            executionKernel = new ExecutionKernel(
+                healthStateManager,
+                config.RequestTimeoutSeconds
+            );
+            requestConsumer = new RequestConsumer(
+                requestQueue,
+                initializer,
+                healthStateManager,
+                executionKernel
+            );
             httpServer = new HttpServer(
                 config.Port,
                 new Router(healthStateManager, requestQueue)
@@ -47,6 +57,7 @@ namespace UnisaveSandbox
             
             healthStateManager.Initialize();
             InitializeAsync().GetAwaiter().GetResult();
+            executionKernel.Initialize();
             requestConsumer.Initialize();
             httpServer.Start();
             
@@ -61,6 +72,7 @@ namespace UnisaveSandbox
             
             Console.WriteLine($"Starting Unisave Sandbox {version} ...");
             Console.WriteLine($"Listening on port {config.Port}");
+            Console.WriteLine($"Execution timeout: {config.RequestTimeoutSeconds} seconds");
             Console.WriteLine("Process ID: " + Process.GetCurrentProcess().Id);
         }
 
@@ -92,6 +104,7 @@ namespace UnisaveSandbox
             
             httpServer?.Stop();
             requestConsumer?.Dispose();
+            executionKernel?.Dispose();
             requestQueue?.Dispose();
             httpClient?.Dispose();
             healthStateManager?.Dispose();
