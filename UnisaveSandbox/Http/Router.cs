@@ -8,12 +8,12 @@ namespace UnisaveSandbox.Http
 {
     public class Router
     {
-        private readonly HealthManager healthManager;
+        private readonly HealthStateManager healthStateManager;
         private readonly RequestQueue requestQueue;
 
-        public Router(HealthManager healthManager, RequestQueue requestQueue)
+        public Router(HealthStateManager healthStateManager, RequestQueue requestQueue)
         {
-            this.healthManager = healthManager;
+            this.healthStateManager = healthStateManager;
             this.requestQueue = requestQueue;
         }
 
@@ -52,17 +52,6 @@ namespace UnisaveSandbox.Http
                 return Task.CompletedTask;
             }
             
-            // [DEBUG kill]
-            // TODO: make sure the sandbox survives this kind of crash
-            /*if (context.Request.Url.AbsolutePath == "/kill")
-            {
-                context.Response.StatusCode = 200;
-                StringResponse(context, "Killing...\n");
-                Log.Warning("Killing...");
-                Environment.Exit(0); // ultra kill
-                return Task.CompletedTask;
-            }*/
-            
             // [custom metrics]
             if (context.Request.HttpMethod == "GET"
                 && context.Request.Url.AbsolutePath == "/metrics")
@@ -80,7 +69,7 @@ namespace UnisaveSandbox.Http
 
         private void HealthCheckRequest(HttpListenerContext context)
         {
-            if (healthManager.IsHealthy())
+            if (healthStateManager.IsHealthy())
             {
                 context.Response.StatusCode = 200;
                 StringResponse(context, "OK\n");

@@ -16,7 +16,7 @@ namespace UnisaveSandbox
     {
         private readonly Config config;
 
-        private readonly HealthManager healthManager;
+        private readonly HealthStateManager healthStateManager;
         private readonly Initializer initializer;
         private readonly RequestQueue requestQueue;
         private readonly RequestConsumer requestConsumer;
@@ -27,14 +27,14 @@ namespace UnisaveSandbox
         {
             this.config = config;
             
-            healthManager = new HealthManager();
+            healthStateManager = new HealthStateManager();
             httpClient = new HttpClient();
             initializer = new Initializer(httpClient);
-            requestQueue = new RequestQueue();
+            requestQueue = new RequestQueue(healthStateManager, config.MaxQueueLength);
             requestConsumer = new RequestConsumer(requestQueue, initializer);
             httpServer = new HttpServer(
                 config.Port,
-                new Router(healthManager, requestQueue)
+                new Router(healthStateManager, requestQueue)
             );
         }
         
@@ -45,7 +45,7 @@ namespace UnisaveSandbox
         {
             PrintStartupMessage();
             
-            healthManager.Initialize();
+            healthStateManager.Initialize();
             InitializeAsync().GetAwaiter().GetResult();
             requestConsumer.Initialize();
             httpServer.Start();
@@ -92,8 +92,9 @@ namespace UnisaveSandbox
             
             httpServer?.Stop();
             requestConsumer?.Dispose();
+            requestQueue?.Dispose();
             httpClient?.Dispose();
-            healthManager?.Dispose();
+            healthStateManager?.Dispose();
             
             Log.Info("Bye.");
         }

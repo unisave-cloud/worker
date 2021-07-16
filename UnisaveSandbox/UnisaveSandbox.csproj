@@ -44,7 +44,7 @@
     <Compile Include="Execution\Executor.cs" />
     <Compile Include="Execution\RequestConsumer.cs" />
     <Compile Include="Execution\RequestQueue.cs" />
-    <Compile Include="HealthManager.cs" />
+    <Compile Include="HealthStateManager.cs" />
     <Compile Include="Http\HttpServer.cs" />
     <Compile Include="Http\Router.cs" />
     <Compile Include="Initializer.cs" />

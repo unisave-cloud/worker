@@ -45,6 +45,10 @@ namespace Unisave.Runtime
                         gameAssemblyTypes.Select(t => t.FullName + "\n")
                     );
                 
+                case "exit":
+                    Environment.Exit(0);
+                    return "DummyFramework: Exited\n"; // this won't be received
+                
                 default:
                     return "DummyFramework: Did run!\n";
             }

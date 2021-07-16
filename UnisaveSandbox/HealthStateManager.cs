@@ -3,7 +3,13 @@ using System.IO;
 
 namespace UnisaveSandbox
 {
-    public class HealthManager : IDisposable
+    /// <summary>
+    /// Keeps track of whether the sandbox is healthy or not
+    ///
+    /// The sandbox starts healthy and then can only become unhealthy.
+    /// Once it's unhealthy it has to be restarted.
+    /// </summary>
+    public class HealthStateManager : IDisposable
     {
         public const string LockFilePath = "/tmp/.unisave-sandbox-lock";
 
