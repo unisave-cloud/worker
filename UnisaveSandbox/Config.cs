@@ -7,6 +7,8 @@ namespace UnisaveSandbox
         public int Port { get; set; } = 8080;
 
         public string InitializationRecipeUrl { get; set; }
+        
+        public bool DummyInitialization { get; set; }
 
         /// <summary>
         /// Loads sandbox configuration from environment variables
@@ -18,7 +20,8 @@ namespace UnisaveSandbox
             
             return new Config {
                 Port = GetEnvInteger("SANDBOX_SERVER_PORT", d.Port),
-                InitializationRecipeUrl = GetEnvString("INITIALIZATION_RECIPE_URL")
+                InitializationRecipeUrl = GetEnvString("INITIALIZATION_RECIPE_URL"),
+                DummyInitialization = GetEnvBool("SANDBOX_DUMMY_INITIALIZATION", false)
             };
         }
 
@@ -32,6 +35,19 @@ namespace UnisaveSandbox
             if (int.TryParse(s, out int i))
                 return i;
 
+            return defaultValue;
+        }
+
+        private static bool GetEnvBool(string key, bool defaultValue = false)
+        {
+            string s = GetEnvString(key);
+            
+            if (string.IsNullOrEmpty(s))
+                return defaultValue;
+            
+            if (bool.TryParse(s, out bool b))
+                return b;
+            
             return defaultValue;
         }
 

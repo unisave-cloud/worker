@@ -69,6 +69,14 @@ namespace UnisaveSandbox
         /// </summary>
         private async Task InitializeAsync()
         {
+            // dummy init
+            if (config.DummyInitialization)
+            {
+                initializer.DummyInitialization();
+                return;
+            }
+
+            // regular init
             if (config.InitializationRecipeUrl == null)
                 Log.Info("Skipping startup sandbox initialization.");
             else

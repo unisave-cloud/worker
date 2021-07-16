@@ -24,6 +24,20 @@ namespace UnisaveSandbox
             this.http = http;
         }
 
+        public void DummyInitialization()
+        {
+            Log.Warning("Starting dummy initialization...");
+            
+            File.Copy("/dummy/DummyFramework.dll", "UnisaveFramework.dll");
+            File.Copy("/dummy/DummyFramework.pdb", "UnisaveFramework.pdb");
+            File.Copy("/dummy/DummyGame.dll", "backend.dll");
+            File.Copy("/dummy/DummyGame.pdb", "backend.pdb");
+            
+            Initialized = true;
+            
+            Log.Warning("Sandbox dummy-initialized.");
+        }
+
         public async Task InitializeSandbox(string recipeUrl)
         {
             if (Initialized)

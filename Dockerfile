@@ -8,6 +8,8 @@ RUN mkdir -p /sandbox-build
 COPY ./ /sandbox-build
 
 RUN msbuild -target:Rebuild -property:Configuration=Release /sandbox-build/UnisaveSandbox/UnisaveSandbox.csproj
+RUN msbuild -target:Rebuild -property:Configuration=Release /sandbox-build/DummyFramework/DummyFramework.csproj
+RUN msbuild -target:Rebuild -property:Configuration=Release /sandbox-build/DummyGame/DummyGame.csproj
 
 ###########
 # RUNNING #
@@ -18,6 +20,11 @@ FROM mono:6.4.0
 # sandbox folder
 RUN mkdir -p /sandbox
 COPY --from=builder /sandbox-build/UnisaveSandbox/bin/Release /sandbox
+
+# dummy initialization folder
+RUN mkdir -p /dummy
+COPY --from=builder /sandbox-build/DummyFramework/bin/Release /dummy
+COPY --from=builder /sandbox-build/DummyGame/bin/Release /dummy
 
 # game folder
 # (part of the tmp folder, since the function will run with read-only filesystem)
@@ -34,6 +41,7 @@ WORKDIR /game
 
 # environment variables
 ENV SANDBOX_SERVER_PORT=8080
+ENV SANDBOX_DUMMY_INITIALIZATION=false
 
 # ports
 EXPOSE 8080

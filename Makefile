@@ -10,7 +10,7 @@ push:
 	docker push $(TAG)
 
 run:
-	docker run --rm -it -p 8080:8080 -p 8081:8081 -p 5000:5000 $(TAG)
+	docker run --rm -it -p 8080:8080 -p 8081:8081 -p 5000:5000 -e SANDBOX_DUMMY_INITIALIZATION=true $(TAG)
 
 run-sh:
 	docker run --rm -it --entrypoint bash $(TAG)
