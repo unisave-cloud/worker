@@ -10,5 +10,5 @@ using System.Runtime.CompilerServices;
 
 [assembly: InternalsVisibleTo("SandboxTests")]
 
-[assembly: AssemblyVersion("0.6.1.0")]
-[assembly: AssemblyInformationalVersion("0.6.1")]
+[assembly: AssemblyVersion("0.6.2.0")]
+[assembly: AssemblyInformationalVersion("0.6.2")]
