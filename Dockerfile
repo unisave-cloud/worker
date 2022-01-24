@@ -2,7 +2,7 @@
 # BUILDING #
 ############
 
-FROM mono:6.4.0 as builder
+FROM mono:6.12.0 as builder
 
 RUN mkdir -p /sandbox-build
 COPY ./ /sandbox-build
@@ -15,7 +15,7 @@ RUN msbuild -target:Rebuild -property:Configuration=Release /sandbox-build/Dummy
 # RUNNING #
 ###########
 
-FROM mono:6.4.0
+FROM mono:6.12.0
 
 # sandbox folder
 RUN mkdir -p /sandbox
