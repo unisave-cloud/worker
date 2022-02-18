@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnisaveSandbox", "UnisaveSandbox\UnisaveSandbox.csproj", "{3E963A7D-2931-40D8-B68C-3F7B127ECB2A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Watchdog", "Watchdog\Watchdog.csproj", "{3E963A7D-2931-40D8-B68C-3F7B127ECB2A}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DummyFramework", "DummyFramework\DummyFramework.csproj", "{227E7B28-8E81-4FCD-A2EB-F5833831609E}"
 EndProject

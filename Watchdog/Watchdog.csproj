@@ -7,8 +7,8 @@
     <ProjectGuid>{3E963A7D-2931-40D8-B68C-3F7B127ECB2A}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>UnisaveSandbox</RootNamespace>
-    <AssemblyName>UnisaveSandbox</AssemblyName>
+    <RootNamespace>Watchdog</RootNamespace>
+    <AssemblyName>Watchdog</AssemblyName>
     <TargetFrameworkVersion>v4.7.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -55,7 +55,7 @@
     <Compile Include="Log.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SandboxServer.cs" />
+    <Compile Include="WatchdogServer.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

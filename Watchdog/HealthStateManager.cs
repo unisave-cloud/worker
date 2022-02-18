@@ -1,17 +1,17 @@
 using System;
 using System.IO;
 
-namespace UnisaveSandbox
+namespace Watchdog
 {
     /// <summary>
-    /// Keeps track of whether the sandbox is healthy or not
+    /// Keeps track of whether the worker instance is healthy or not
     ///
-    /// The sandbox starts healthy and then can only become unhealthy.
+    /// The worker starts healthy and then can only become unhealthy.
     /// Once it's unhealthy it has to be restarted.
     /// </summary>
     public class HealthStateManager : IDisposable
     {
-        public const string LockFilePath = "/tmp/.unisave-sandbox-lock";
+        public const string LockFilePath = "/tmp/.unisave-worker-liveness-lock";
 
         /// <summary>
         /// Creates the lock file on application startup

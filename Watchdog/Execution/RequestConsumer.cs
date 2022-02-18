@@ -4,9 +4,9 @@ using System.IO;
 using System.Net;
 using System.Text;
 using System.Threading;
-using UnisaveSandbox.Http;
+using Watchdog.Http;
 
-namespace UnisaveSandbox.Execution
+namespace Watchdog.Execution
 {
     public class RequestConsumer : IDisposable
     {
@@ -65,7 +65,7 @@ namespace UnisaveSandbox.Execution
                 {
                     Log.Error("Exception in the request consumer loop:\n" + e);
                     
-                    // this is a sign of a sandbox issue, restart
+                    // this is a sign of a worker issue, restart
                     healthStateManager.SetUnhealthy();
                 }
             }
@@ -89,13 +89,13 @@ namespace UnisaveSandbox.Execution
             Stopwatch sw = new Stopwatch();
             sw.Start();
             
-            // initialize sandbox from header recipe
+            // initialize worker from header recipe
             if (!initializer.Initialized)
             {
                 string recipeUrl = context.Request.Headers["X-Unisave-Initialization-Recipe-Url"];
 
                 if (recipeUrl != null)
-                    initializer.InitializeSandbox(recipeUrl).GetAwaiter().GetResult();
+                    initializer.InitializeWorker(recipeUrl).GetAwaiter().GetResult();
             }
         
             // read the request
@@ -120,11 +120,11 @@ namespace UnisaveSandbox.Execution
             catch (Exception e)
             {
                 // report the issue also to the end user
-                response = ExecutionResponse.SandboxException(e);
+                response = ExecutionResponse.WorkerException(e);
                 
                 Log.Error("Exception received from the execution kernel:\n" + e);
                     
-                // this is a sign of a sandbox issue, restart
+                // this is a sign of a worker issue, restart
                 healthStateManager.SetUnhealthy();
             }
 

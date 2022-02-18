@@ -3,19 +3,20 @@ using System.IO;
 using System.Net.Http;
 using System.Threading.Tasks;
 
-namespace UnisaveSandbox
+namespace Watchdog
 {
     /// <summary>
-    /// Manages sandbox initialization
+    /// Manages worker instance initialization
     /// </summary>
     public class Initializer
     {
+        // sandbox is a legacy name for watchdog/worker
         private const string ExpectedRecipeHeader = "UNISAVE_SANDBOX_RECIPE v1";
         
         private readonly HttpClient http;
 
         /// <summary>
-        /// Has this sandbox been initialized already?
+        /// Has this worker been initialized already?
         /// </summary>
         public bool Initialized { get; private set; } = false;
         
@@ -35,14 +36,14 @@ namespace UnisaveSandbox
             
             Initialized = true;
             
-            Log.Warning("Sandbox dummy-initialized.");
+            Log.Warning("Worker dummy-initialized.");
         }
 
-        public async Task InitializeSandbox(string recipeUrl)
+        public async Task InitializeWorker(string recipeUrl)
         {
             if (Initialized)
                 throw new InvalidOperationException(
-                    "The sandbox was already initialized."
+                    "The worker was already initialized."
                 );
             
             Log.Info("Starting initialization...");
@@ -99,7 +100,7 @@ namespace UnisaveSandbox
             if (path != null)
                 throw new Exception("Recipe ended unexpectedly");
             
-            Log.Info("Sandbox initialized.");
+            Log.Info("Worker initialized.");
         }
 
         private async Task DownloadFile(string path, string url)

@@ -1,6 +1,6 @@
 using System;
 
-namespace UnisaveSandbox
+namespace Watchdog
 {
     public class Config
     {
@@ -17,7 +17,7 @@ namespace UnisaveSandbox
         public string InitializationRecipeUrl { get; set; }
         
         /// <summary>
-        /// Initialize the sandbox to dummy framework and game for debugging
+        /// Initialize the worker to dummy framework and game for debugging
         /// outside the rest of the unisave system
         /// </summary>
         public bool DummyInitialization { get; set; }
@@ -38,7 +38,7 @@ namespace UnisaveSandbox
         /////////////
 
         /// <summary>
-        /// Loads sandbox configuration from environment variables
+        /// Loads worker configuration from environment variables
         /// </summary>
         /// <returns></returns>
         public static Config LoadFromEnv()
@@ -46,9 +46,9 @@ namespace UnisaveSandbox
             var d = new Config();
             
             return new Config {
-                Port = GetEnvInteger("SANDBOX_SERVER_PORT", d.Port),
+                Port = GetEnvInteger("WATCHDOG_SERVER_PORT", d.Port),
                 InitializationRecipeUrl = GetEnvString("INITIALIZATION_RECIPE_URL"),
-                DummyInitialization = GetEnvBool("SANDBOX_DUMMY_INITIALIZATION", false),
+                DummyInitialization = GetEnvBool("WATCHDOG_DUMMY_INITIALIZATION", false),
                 MaxQueueLength = GetEnvInteger("MAX_QUEUE_LENGTH", d.MaxQueueLength),
                 RequestTimeoutSeconds = GetEnvInteger("REQUEST_TIMEOUT_SECONDS", d.RequestTimeoutSeconds)
             };

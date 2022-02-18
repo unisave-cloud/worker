@@ -1,5 +1,5 @@
-VERSION=$$(grep -oP "AssemblyInformationalVersion\(\"\K[^\"]+" UnisaveSandbox/Properties/AssemblyInfo.cs)
-TAG=registry.digitalocean.com/unisave/unisave-sandbox:$(VERSION)
+VERSION=$$(grep -oP "AssemblyInformationalVersion\(\"\K[^\"]+" Watchdog/Properties/AssemblyInfo.cs)
+TAG=registry.digitalocean.com/unisave/unisave-watchdog:$(VERSION)
 
 .PHONY: build push run run-sh
 
@@ -11,7 +11,7 @@ push:
 
 run:
 	docker run --rm -it -p 8080:8080 \
-	-e SANDBOX_DUMMY_INITIALIZATION=true \
+	-e WATCHDOG_DUMMY_INITIALIZATION=true \
 	-e REQUEST_TIMEOUT_SECONDS=3 \
 	$(TAG)
 

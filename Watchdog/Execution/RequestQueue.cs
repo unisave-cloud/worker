@@ -2,9 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Threading;
-using UnisaveSandbox.Http;
+using Watchdog.Http;
 
-namespace UnisaveSandbox.Execution
+namespace Watchdog.Execution
 {
     /// <summary>
     /// Queues incoming execution requests that are not yet being executed
@@ -40,7 +40,7 @@ namespace UnisaveSandbox.Execution
                 
                 // reject all waiting requests
                 foreach (HttpListenerContext context in queue)
-                    RejectRequestBecauseSandboxIsStopping(context);
+                    RejectRequestBecauseWorkerIsStopping(context);
                 
                 queue.Clear();
             }
@@ -48,20 +48,20 @@ namespace UnisaveSandbox.Execution
 
         public void EnqueueRequest(HttpListenerContext context)
         {
-            // unhealthy sandbox
+            // unhealthy worker
             if (!healthStateManager.IsHealthy())
             {
-                RejectRequestBecauseSandboxUnhealthy(context);
+                RejectRequestBecauseWorkerUnhealthy(context);
                 return;
             }
             
             // handle queuing
             lock (queueLock)
             {
-                // stopping sandbox
+                // stopping worker
                 if (disposed)
                 {
-                    RejectRequestBecauseSandboxIsStopping(context);
+                    RejectRequestBecauseWorkerIsStopping(context);
                     return;
                 }
                 
@@ -113,15 +113,15 @@ namespace UnisaveSandbox.Execution
             }
         }
 
-        private void RejectRequestBecauseSandboxUnhealthy(HttpListenerContext context)
+        private void RejectRequestBecauseWorkerUnhealthy(HttpListenerContext context)
         {
             // EXPLANATION:
-            // Sandbox is unhealthy and so it won't serve requests.
-            // Wait for the sandbox to restart or send the request
-            // to a different sandbox instead.
+            // Worker is unhealthy and so it won't serve requests.
+            // Wait for the worker to restart or send the request
+            // to a different worker instead.
             
             context.Response.StatusCode = 500;
-            Router.StringResponse(context, "Sandbox is unhealthy\n");
+            Router.StringResponse(context, "Worker is unhealthy\n");
             
             Log.Warning("Rejected request due to being unhealthy.");
         }
@@ -129,24 +129,24 @@ namespace UnisaveSandbox.Execution
         private void RejectRequestBecauseQueueIsFull(HttpListenerContext context)
         {
             // EXPLANATION:
-            // Sandbox queue is full and so any further accepted requests
-            // would wait too long or they would overwhelm the sandbox.
-            // Send this request to another sandbox or wait for a while.
+            // Worker queue is full and so any further accepted requests
+            // would wait too long or they would overwhelm the worker.
+            // Send this request to another worker or wait for a while.
             
             context.Response.StatusCode = 429;
-            Router.StringResponse(context, "Sandbox queue is full\n");
+            Router.StringResponse(context, "Worker queue is full\n");
             
             Log.Warning("Rejected request due to queue being full.");
         }
 
-        private void RejectRequestBecauseSandboxIsStopping(HttpListenerContext context)
+        private void RejectRequestBecauseWorkerIsStopping(HttpListenerContext context)
         {
             // EXPLANATION:
-            // Sandbox is being stopped and so no more requests can be served.
-            // Send the request to a different sandbox.
+            // Worker is being stopped and so no more requests can be served.
+            // Send the request to a different worker.
             
             context.Response.StatusCode = 500;
-            Router.StringResponse(context, "Sandbox is stopping\n");
+            Router.StringResponse(context, "Worker is stopping\n");
             
             Log.Warning("Rejected request due to stopping.");
         }

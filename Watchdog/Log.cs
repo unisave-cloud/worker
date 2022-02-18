@@ -1,6 +1,6 @@
 using System;
 
-namespace UnisaveSandbox
+namespace Watchdog
 {
     /// <summary>
     /// Formats console logging

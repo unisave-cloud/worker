@@ -1,7 +1,7 @@
 using System;
 using System.Reflection;
 
-namespace UnisaveSandbox.Execution
+namespace Watchdog.Execution
 {
     public class ExecutionResponse
     {
@@ -13,9 +13,9 @@ namespace UnisaveSandbox.Execution
         // TODO: request timing, network usage, memory usage, etc...
 
         /// <summary>
-        /// Sandbox crashed, turn it into a response
+        /// Worker crashed, turn it into a response
         /// </summary>
-        public static ExecutionResponse SandboxException(Exception e)
+        public static ExecutionResponse WorkerException(Exception e)
         {
             string version = typeof(ExecutionResponse).Assembly
                 .GetCustomAttribute<AssemblyInformationalVersionAttribute>()
@@ -24,7 +24,7 @@ namespace UnisaveSandbox.Execution
             string message =
                 $"Unisave experienced an internal error, " +
                 $"please send this log to developers of Unisave.\n" +
-                $"The exception occured in sandbox, version {version}\n" +
+                $"The exception occured in worker, version {version}\n" +
                 $"The exception:\n{e}";
 
             string messageEscaped = message
@@ -37,7 +37,7 @@ namespace UnisaveSandbox.Execution
                 'exception': {
                     'ClassName': 'System.Exception',
                     'Message': '###',
-                    'StackTraceString': '   at UnisaveSandbox'
+                    'StackTraceString': '   at UnisaveWorker'
                 },
                 'special': {}
             }".Replace('\'', '\"').Replace("###", messageEscaped);

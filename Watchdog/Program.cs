@@ -2,7 +2,7 @@ using System;
 using Mono.Unix;
 using Mono.Unix.Native;
 
-namespace UnisaveSandbox
+namespace Watchdog
 {
     public static class Program
     {
@@ -10,7 +10,7 @@ namespace UnisaveSandbox
         {
             Config config = Config.LoadFromEnv();
             
-            using (var server = new SandboxServer(config))
+            using (var server = new WatchdogServer(config))
             {
                 server.Start();
                 

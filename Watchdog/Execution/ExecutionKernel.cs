@@ -1,6 +1,6 @@
 using System;
 
-namespace UnisaveSandbox.Execution
+namespace Watchdog.Execution
 {
     public class ExecutionKernel : IDisposable
     {
@@ -34,7 +34,7 @@ namespace UnisaveSandbox.Execution
         /// Gets an execution request and returns an execution response.
         ///
         /// If this method throws an exception, it means something went wrong
-        /// with the sandbox code. User code shouldn't be able to cause this
+        /// with the worker code. User code shouldn't be able to cause this
         /// method to throw.
         /// </summary>
         public ExecutionResponse Handle(ExecutionRequest executionRequest)
@@ -58,7 +58,7 @@ namespace UnisaveSandbox.Execution
 
             if (timedOut)
             {
-                Log.Error("Execution request timed out! Killing the whole sandbox...");
+                Log.Error("Execution request timed out! Killing the whole worker...");
                 
                 response.ExecutionResult = FormatTimeoutResponse();
                 
@@ -84,7 +84,7 @@ namespace UnisaveSandbox.Execution
                 'exception': {
                     'ClassName': 'System.TimeoutException',
                     'Message': '###',
-                    'StackTraceString': '   at UnisaveSandbox'
+                    'StackTraceString': '   at UnisaveWorker'
                 },
                 'special': {}
             }".Replace('\'', '\"').Replace("###", message);

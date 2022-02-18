@@ -1,7 +1,7 @@
 using System;
 using System.Threading;
 
-namespace UnisaveSandbox.Execution
+namespace Watchdog.Execution
 {
     /// <summary>
     /// Handles timeout for execution
@@ -9,7 +9,7 @@ namespace UnisaveSandbox.Execution
     /// It runs the action on a separate thread and if the action times out
     /// it returns and lets the action thread be (doesn't abort since it's not
     /// possible since .NET 5 and up), instead signals the abort to the called
-    /// and the caller then has to kill the entire sandbox
+    /// and the caller then has to kill the entire worker
     /// </summary>
     public class TimeoutWrapper : IDisposable
     {

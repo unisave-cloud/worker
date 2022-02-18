@@ -2,9 +2,9 @@ using System;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
-using UnisaveSandbox.Execution;
+using Watchdog.Execution;
 
-namespace UnisaveSandbox.Http
+namespace Watchdog.Http
 {
     public class Router
     {
@@ -34,7 +34,7 @@ namespace UnisaveSandbox.Http
                 return Task.CompletedTask;
             }
             
-            // [sandbox status]
+            // [worker status]
             if (context.Request.HttpMethod == "GET"
                 && context.Request.Url.AbsolutePath == "/status")
             {

@@ -2,7 +2,7 @@ using System;
 using System.IO;
 using System.Reflection;
 
-namespace UnisaveSandbox.Execution
+namespace Watchdog.Execution
 {
     public class Executor
     {
@@ -43,7 +43,7 @@ namespace UnisaveSandbox.Execution
             catch (Exception e)
             {
                 // will show up on the client as a regular exception
-                return FormatSandboxException(e);
+                return FormatWorkerException(e);
             }
         }
 
@@ -84,7 +84,7 @@ namespace UnisaveSandbox.Execution
                 );
         }
 
-        private string FormatSandboxException(Exception e)
+        private string FormatWorkerException(Exception e)
         {
             string version = typeof(Executor).Assembly
                 .GetCustomAttribute<AssemblyInformationalVersionAttribute>()
@@ -93,7 +93,7 @@ namespace UnisaveSandbox.Execution
             string message =
                 $"Unisave experienced an internal error, " +
                 $"please send this log to developers of Unisave.\n" +
-                $"The exception occured in sandbox, version {version}\n" +
+                $"The exception occured in worker, version {version}\n" +
                 $"The exception:\n{e}";
 
             string messageEscaped = message
@@ -106,7 +106,7 @@ namespace UnisaveSandbox.Execution
                 'exception': {
                     'ClassName': 'System.Exception',
                     'Message': '###',
-                    'StackTraceString': '   at UnisaveSandbox'
+                    'StackTraceString': '   at UnisaveWorker'
                 },
                 'special': {}
             }".Replace('\'', '\"').Replace("###", messageEscaped);

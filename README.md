@@ -1,7 +1,28 @@
-# Unisave Sandbox
+# Unisave Watchdog
 
-This repository contains the OpenFaas function image, that is used to
-run game backends.
+Watchdog is a process that runs inside a worker instance container and connects the game backend to the worker system. Its placement in the context of the worker system can be seen in the following diagram:
+
+![Watchdog component context](docs/img/structurizr-1-WorkerInstanceComponents.png)
+
+
+## Documentation
+
+- overview
+- intialization
+- API
+  - execution
+  - metrics
+  - other
+
+
+## Development
+
+> TODO: describe the development setup.
+
+
+
+
+-------
 
 The behaviour is as follows:
 

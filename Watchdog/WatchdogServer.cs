@@ -3,16 +3,16 @@ using System.Diagnostics;
 using System.Net.Http;
 using System.Reflection;
 using System.Threading.Tasks;
-using UnisaveSandbox.Execution;
-using UnisaveSandbox.Http;
+using Watchdog.Execution;
+using Watchdog.Http;
 
-namespace UnisaveSandbox
+namespace Watchdog
 {
     /// <summary>
-    /// Represents the sandbox server
+    /// Represents the watchdog server
     /// (which is composed of many components, http server being one of them)
     /// </summary>
-    public class SandboxServer : IDisposable
+    public class WatchdogServer : IDisposable
     {
         private readonly Config config;
 
@@ -24,7 +24,7 @@ namespace UnisaveSandbox
         private readonly HttpClient httpClient;
         private readonly HttpServer httpServer;
         
-        public SandboxServer(Config config)
+        public WatchdogServer(Config config)
         {
             this.config = config;
             
@@ -61,16 +61,16 @@ namespace UnisaveSandbox
             requestConsumer.Initialize();
             httpServer.Start();
             
-            Log.Info("Unisave Sandbox running.");
+            Log.Info("Unisave Watchdog running.");
         }
         
         private void PrintStartupMessage()
         {
-            string version = typeof(SandboxServer).Assembly
+            string version = typeof(WatchdogServer).Assembly
                 .GetCustomAttribute<AssemblyInformationalVersionAttribute>()
                 .InformationalVersion;
             
-            Console.WriteLine($"Starting Unisave Sandbox {version} ...");
+            Console.WriteLine($"Starting Unisave Watchdog {version} ...");
             Console.WriteLine($"Listening on port {config.Port}");
             Console.WriteLine($"Execution timeout: {config.RequestTimeoutSeconds} seconds");
             Console.WriteLine("Process ID: " + Process.GetCurrentProcess().Id);
@@ -90,9 +90,9 @@ namespace UnisaveSandbox
 
             // regular init
             if (config.InitializationRecipeUrl == null)
-                Log.Info("Skipping startup sandbox initialization.");
+                Log.Info("Skipping startup worker initialization.");
             else
-                await initializer.InitializeSandbox(config.InitializationRecipeUrl);
+                await initializer.InitializeWorker(config.InitializationRecipeUrl);
         }
 
         /// <summary>
@@ -100,7 +100,7 @@ namespace UnisaveSandbox
         /// </summary>
         public void Stop()
         {
-            Log.Info("Stopping Unisave Sandbox...");
+            Log.Info("Stopping Unisave Watchdog...");
             
             httpServer?.Stop();
             requestConsumer?.Dispose();
