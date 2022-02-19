@@ -9,4 +9,4 @@ using System.Runtime.CompilerServices;
 [assembly: AssemblyProduct("Unisave Watchdog")]
 
 [assembly: AssemblyVersion("0.6.3.0")]
-[assembly: AssemblyInformationalVersion("0.6.3-dev")]
+[assembly: AssemblyInformationalVersion("0.6.3")]
