@@ -105,7 +105,7 @@ namespace Watchdog.Http
         {
             if (response == null)
                 response = "null";
-            
+
             try
             {
                 byte[] responseBytes = Encoding.UTF8.GetBytes(response);
@@ -115,6 +115,13 @@ namespace Watchdog.Http
                     responseBytes,
                     0,
                     responseBytes.Length
+                );
+            }
+            catch (Exception e)
+            {
+                Log.Warning(
+                    "Method Router.StringResponse did nothing " +
+                    "due to exception: " + e.Message
                 );
             }
             finally
