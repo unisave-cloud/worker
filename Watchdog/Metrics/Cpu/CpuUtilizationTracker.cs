@@ -41,7 +41,7 @@ namespace Watchdog.Metrics.Cpu
                 measurements[i] = initialMeasurement;
             
             // setup timer
-            timer = new Timer(periodSeconds);
+            timer = new Timer(periodSeconds * 1000.0);
             timer.Elapsed += OnTimerTick;
             timer.AutoReset = true;
             timer.Enabled = true;
@@ -72,8 +72,7 @@ namespace Watchdog.Metrics.Cpu
                 int startIndex = WrapBufferIndex(endIndex - windowSamples);
 
                 double cpuUsagePerWindow = measurements[endIndex] - measurements[startIndex];
-                double cpuUsagePerSample = cpuUsagePerWindow / windowSamples;
-                double cpuUsagePerSecond = cpuUsagePerSample / periodSeconds;
+                double cpuUsagePerSecond = cpuUsagePerWindow / windowSeconds;
 
                 // usage per second = used CPU seconds per second
                 // = vCPU utilization units
