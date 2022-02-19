@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Net;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace Watchdog.Http
@@ -13,13 +14,16 @@ namespace Watchdog.Http
         private Task listeningLoopTask;
 
         private bool alreadyDisposed;
+
+        private readonly bool verbose;
         
-        public HttpServer(int port, Router router)
+        public HttpServer(int port, bool verbose, Router router)
         {
             listener = new HttpListener();
             listener.Prefixes.Add("http://*:" + port + "/");
 
             this.router = router;
+            this.verbose = verbose;
         }
  
         public void Start()
@@ -88,6 +92,9 @@ namespace Watchdog.Http
 
             try
             {
+                if (verbose)
+                    PrintVerboseRequestInformation(context);
+                
                 await router.HandleRequestAsync(context);
             }
             catch (Exception e)
@@ -101,6 +108,22 @@ namespace Watchdog.Http
             // NOTE: Do not close the response stream here, as some requests
             // are handled asynchronously by other threads and so the request
             // may still be processed.
+        }
+
+        private void PrintVerboseRequestInformation(HttpListenerContext context)
+        {
+            var r = context.Request;
+            
+            StringBuilder sb = new StringBuilder();
+            
+            sb.AppendLine(
+                $"{r.HttpMethod} {r.Url.PathAndQuery} HTTP/{r.ProtocolVersion}"
+            );
+            
+            foreach (var key in r.Headers.AllKeys)
+                sb.AppendLine($"{key}: {r.Headers[key]}");
+            
+            Log.Debug("HTTP Server received request with this head:\n" + sb);
         }
  
         public void Stop()

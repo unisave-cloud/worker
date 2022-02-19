@@ -44,6 +44,11 @@ namespace Watchdog
         /// </summary>
         public string WorkerBackendId { get; set; }
         
+        /// <summary>
+        /// The HTTP server should print a lot of additional information
+        /// </summary>
+        public bool VerboseHttpServer { get; set; }
+        
         
         /////////////
         // Methods //
@@ -64,7 +69,8 @@ namespace Watchdog
                 MaxQueueLength = GetEnvInteger("MAX_QUEUE_LENGTH", d.MaxQueueLength),
                 RequestTimeoutSeconds = GetEnvInteger("REQUEST_TIMEOUT_SECONDS", d.RequestTimeoutSeconds),
                 WorkerEnvironmentId = GetEnvString("WORKER_ENVIRONMENT_ID"),
-                WorkerBackendId = GetEnvString("WORKER_BACKEND_ID")
+                WorkerBackendId = GetEnvString("WORKER_BACKEND_ID"),
+                VerboseHttpServer = GetEnvBool("VERBOSE_HTTP_SERVER", false)
             };
         }
 

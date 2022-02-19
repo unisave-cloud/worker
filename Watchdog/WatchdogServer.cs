@@ -34,7 +34,10 @@ namespace Watchdog
             httpClient = new HttpClient();
             initializer = new Initializer(httpClient);
             metricsManager = new MetricsManager(config);
-            requestQueue = new RequestQueue(healthStateManager, config.MaxQueueLength);
+            requestQueue = new RequestQueue(
+                healthStateManager,
+                config.MaxQueueLength
+            );
             executionKernel = new ExecutionKernel(
                 healthStateManager,
                 config.RequestTimeoutSeconds
@@ -46,8 +49,13 @@ namespace Watchdog
                 executionKernel
             );
             httpServer = new HttpServer(
-                config.Port,
-                new Router(healthStateManager, requestQueue, metricsManager)
+                port: config.Port,
+                verbose: config.VerboseHttpServer,
+                router: new Router(
+                    healthStateManager,
+                    requestQueue,
+                    metricsManager
+                )
             );
         }
         

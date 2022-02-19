@@ -11,3 +11,4 @@ The watchdog process can be configured via environment variables:
 | `WATCHDOG_DUMMY_INITIALIZATION`  | `true` if the watchdog should perform dummy initialization |
 | `WORKER_ENVIRONMENT_ID`          | Environment ID of the worker pool, may be empty (must be for eager pools) |
 | `WORKER_BACKEND_ID`              | Backend ID of the worker pool, may be empty (must be for eager pools) |
+| `VERBOSE_HTTP_SERVER`            | When `true`, the HTTP server will print additional information |
