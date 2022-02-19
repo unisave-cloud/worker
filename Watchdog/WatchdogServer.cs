@@ -33,7 +33,7 @@ namespace Watchdog
             healthStateManager = new HealthStateManager();
             httpClient = new HttpClient();
             initializer = new Initializer(httpClient);
-            metricsManager = new MetricsManager();
+            metricsManager = new MetricsManager(config);
             requestQueue = new RequestQueue(healthStateManager, config.MaxQueueLength);
             executionKernel = new ExecutionKernel(
                 healthStateManager,

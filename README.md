@@ -11,6 +11,7 @@ Watchdog is a process that runs inside a worker instance container and connects 
 - Intialization
 - Execution
 - Metrics
+- [Configuration](docs/configuration.md)
 - [HTTP API](docs/api)
 
 

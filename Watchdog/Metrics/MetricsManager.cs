@@ -1,6 +1,7 @@
 using System;
 using System.Text;
 using Watchdog.Metrics.Cpu;
+using Watchdog.Metrics.Other;
 
 namespace Watchdog.Metrics
 {
@@ -8,35 +9,56 @@ namespace Watchdog.Metrics
     {
         private readonly CpuUtilizationTracker cpuUtilizationTracker;
         
-        private readonly CpuUsageGauge cpuUsageGauge;
-        private readonly CpuUtilizationGauge cpuUtilizationGauge1m;
-        private readonly CpuUtilizationGauge cpuUtilizationGauge5m;
+        private readonly CpuUsageCounter cpuUsageCounter;
+        private readonly CpuUtilizationGauge cpuUtilizationGauge1M;
+        private readonly CpuUtilizationGauge cpuUtilizationGauge5M;
+
+        private readonly UptimeCounter uptimeCounter;
         
-        public MetricsManager()
+        public MetricsManager(Config config)
         {
             cpuUtilizationTracker = new CpuUtilizationTracker(
                 periodSeconds: 10.0,
                 historySeconds: 5 * 60.0
             );
             
-            cpuUsageGauge = new CpuUsageGauge(
+            cpuUsageCounter = new CpuUsageCounter(
                 name: "worker_cpu_usage_seconds_total",
                 help: "Cumulative system CPU time consumed in seconds"
-            );
+            ) {
+                ["environment"] = config.WorkerEnvironmentId,
+                ["backend"] = config.WorkerBackendId
+            };
             
-            cpuUtilizationGauge1m = new CpuUtilizationGauge(
+            cpuUtilizationGauge1M = new CpuUtilizationGauge(
                 name: "worker_cpu_utilization",
                 help: "Immediate CPU utilization in absolute vCPU units",
                 cpuUtilizationTracker: cpuUtilizationTracker,
                 timeWindow: 60.0
-            ) {["window"] = "1m"};
+            ) {
+                ["window"] = "1m",
+                ["environment"] = config.WorkerEnvironmentId,
+                ["backend"] = config.WorkerBackendId
+            };
             
-            cpuUtilizationGauge5m = new CpuUtilizationGauge(
+            cpuUtilizationGauge5M = new CpuUtilizationGauge(
                 name: "worker_cpu_utilization",
                 help: "Immediate CPU utilization in absolute vCPU units",
                 cpuUtilizationTracker: cpuUtilizationTracker,
                 timeWindow: 5 * 60.0
-            ) {["window"] = "5m"};
+            ) {
+                ["window"] = "5m",
+                ["environment"] = config.WorkerEnvironmentId,
+                ["backend"] = config.WorkerBackendId
+            };
+            
+            uptimeCounter = new UptimeCounter(
+                name: "worker_uptime_seconds",
+                help: "Worker instance uptime seconds"
+            ) {
+                ["environment"] = config.WorkerEnvironmentId,
+                ["backend"] = config.WorkerBackendId
+            };
         }
 
         public void Dispose()
@@ -48,9 +70,11 @@ namespace Watchdog.Metrics
         {
             StringBuilder sb = new StringBuilder();
 
-            cpuUsageGauge.ToPrometheusTextFormat(sb);
-            cpuUtilizationGauge1m.ToPrometheusTextFormat(sb);
-            cpuUtilizationGauge5m.ToPrometheusTextFormat(sb);
+            cpuUsageCounter.ToPrometheusTextFormat(sb);
+            cpuUtilizationGauge1M.ToPrometheusTextFormat(sb);
+            cpuUtilizationGauge5M.ToPrometheusTextFormat(sb);
+            
+            uptimeCounter.ToPrometheusTextFormat(sb);
 
             return sb.ToString();
         }

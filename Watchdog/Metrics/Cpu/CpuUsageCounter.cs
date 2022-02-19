@@ -5,10 +5,10 @@ namespace Watchdog.Metrics.Cpu
     /// <summary>
     /// Cumulative system CPU time consumed in seconds
     /// </summary>
-    public class CpuUsageGauge : PrometheusMetric
+    public class CpuUsageCounter : PrometheusMetric
     {
-        public CpuUsageGauge(string name, string help = null)
-            : base(name, help, "gauge") { }
+        public CpuUsageCounter(string name, string help = null)
+            : base(name, help, "counter") { }
 
         protected override double GetMetricValue()
         {

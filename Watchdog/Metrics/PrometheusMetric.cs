@@ -23,7 +23,13 @@ namespace Watchdog.Metrics
         
         public string this[string label]
         {
-            set => labels[label] = value;
+            set
+            {
+                if (string.IsNullOrEmpty(value))
+                    labels.Remove(label);
+                else
+                    labels[label] = value;
+            }
         }
 
         protected abstract double GetMetricValue();

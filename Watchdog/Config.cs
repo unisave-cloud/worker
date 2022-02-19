@@ -32,6 +32,18 @@ namespace Watchdog
         /// </summary>
         public int RequestTimeoutSeconds { get; set; } = 5;
         
+        /// <summary>
+        /// Environment ID of the worker pool,
+        /// may be empty and is empty for eager pools
+        /// </summary>
+        public string WorkerEnvironmentId { get; set; }
+        
+        /// <summary>
+        /// Backend ID of the worker pool,
+        /// may be empty and is empty for eager pools
+        /// </summary>
+        public string WorkerBackendId { get; set; }
+        
         
         /////////////
         // Methods //
@@ -50,7 +62,9 @@ namespace Watchdog
                 InitializationRecipeUrl = GetEnvString("INITIALIZATION_RECIPE_URL"),
                 DummyInitialization = GetEnvBool("WATCHDOG_DUMMY_INITIALIZATION", false),
                 MaxQueueLength = GetEnvInteger("MAX_QUEUE_LENGTH", d.MaxQueueLength),
-                RequestTimeoutSeconds = GetEnvInteger("REQUEST_TIMEOUT_SECONDS", d.RequestTimeoutSeconds)
+                RequestTimeoutSeconds = GetEnvInteger("REQUEST_TIMEOUT_SECONDS", d.RequestTimeoutSeconds),
+                WorkerEnvironmentId = GetEnvString("WORKER_ENVIRONMENT_ID"),
+                WorkerBackendId = GetEnvString("WORKER_BACKEND_ID")
             };
         }
 

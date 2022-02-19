@@ -36,20 +36,20 @@ namespace Watchdog.Metrics.Cpu
             measurements = new double[bufferSize];
 
             // initialize measurements
-            double initialMeasurement = CpuUsageGauge.PerformMeasurement();
+            double initialMeasurement = CpuUsageCounter.PerformMeasurement();
             for (int i = 0; i < measurements.Length; i++)
                 measurements[i] = initialMeasurement;
             
             // setup timer
             timer = new Timer(periodSeconds);
-            timer.AutoReset = true;
             timer.Elapsed += OnTimerTick;
+            timer.AutoReset = true;
             timer.Enabled = true;
         }
 
         private void OnTimerTick(object sender, ElapsedEventArgs e)
         {
-            double measurement = CpuUsageGauge.PerformMeasurement();
+            double measurement = CpuUsageCounter.PerformMeasurement();
             
             lock (syncLock)
             {
