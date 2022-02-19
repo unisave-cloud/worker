@@ -9,7 +9,7 @@ namespace Watchdog.Metrics
         
         private readonly object syncLock = new object();
 
-        protected MetricsCounter(string name, string help = null)
+        public MetricsCounter(string name, string help = null)
             : base(name, help, "counter") { }
 
         public void Increment(double amount)

@@ -21,6 +21,10 @@ namespace Watchdog.Metrics
         private readonly NetstatGauge networkRxGauge;
         private readonly NetstatGauge networkTxGauge;
 
+        private readonly MetricsCounter requestCounter;
+        private readonly MetricsCounter requestDurationCounter;
+        private readonly MetricsCounter requestResponseSizeCounter;
+
         private readonly UptimeCounter uptimeCounter;
         
         public MetricsManager(Config config)
@@ -97,6 +101,30 @@ namespace Watchdog.Metrics
                 ["backend"] = config.WorkerBackendId
             };
             
+            requestCounter = new MetricsCounter(
+                name: "worker_requests_total",
+                help: "Total number of performed execution requests"
+            ) {
+                ["environment"] = config.WorkerEnvironmentId,
+                ["backend"] = config.WorkerBackendId
+            };
+            
+            requestDurationCounter = new MetricsCounter(
+                name: "worker_request_duration_seconds_total",
+                help: "Total number of seconds spent running execution requests"
+            ) {
+                ["environment"] = config.WorkerEnvironmentId,
+                ["backend"] = config.WorkerBackendId
+            };
+            
+            requestResponseSizeCounter = new MetricsCounter(
+                name: "worker_request_response_bytes_total",
+                help: "Size of all execution responses in bytes"
+            ) {
+                ["environment"] = config.WorkerEnvironmentId,
+                ["backend"] = config.WorkerBackendId
+            };
+            
             uptimeCounter = new UptimeCounter(
                 name: "worker_uptime_seconds",
                 help: "Worker instance uptime seconds"
@@ -128,10 +156,25 @@ namespace Watchdog.Metrics
             networkTxGauge.ToPrometheusTextFormat(sb);
             sb.AppendLine();
             
+            requestCounter.ToPrometheusTextFormat(sb);
+            requestDurationCounter.ToPrometheusTextFormat(sb);
+            requestResponseSizeCounter.ToPrometheusTextFormat(sb);
+            sb.AppendLine();
+            
             uptimeCounter.ToPrometheusTextFormat(sb);
             sb.AppendLine();
 
             return sb.ToString();
+        }
+
+        public void RecordExecutionRequestFinished(
+            double durationSeconds,
+            double responseSizeBytes
+        )
+        {
+            requestCounter.Increment(1.0);
+            requestDurationCounter.Increment(durationSeconds);
+            requestResponseSizeCounter.Increment(responseSizeBytes);
         }
     }
 }

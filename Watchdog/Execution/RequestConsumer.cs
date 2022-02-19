@@ -5,6 +5,7 @@ using System.Net;
 using System.Text;
 using System.Threading;
 using Watchdog.Http;
+using Watchdog.Metrics;
 
 namespace Watchdog.Execution
 {
@@ -14,6 +15,7 @@ namespace Watchdog.Execution
         private readonly RequestQueue requestQueue;
         private readonly HealthStateManager healthStateManager;
         private readonly ExecutionKernel executionKernel;
+        private readonly MetricsManager metricsManager;
 
         private CancellationTokenSource loopCancellation;
         private Thread loopThread;
@@ -22,13 +24,15 @@ namespace Watchdog.Execution
             RequestQueue requestQueue,
             Initializer initializer,
             HealthStateManager healthStateManager,
-            ExecutionKernel executionKernel
+            ExecutionKernel executionKernel,
+            MetricsManager metricsManager
         )
         {
             this.requestQueue = requestQueue;
             this.initializer = initializer;
             this.healthStateManager = healthStateManager;
             this.executionKernel = executionKernel;
+            this.metricsManager = metricsManager;
         }
 
         public void Initialize()
@@ -133,11 +137,15 @@ namespace Watchdog.Execution
             // TODO: set headers with timing and other stuff...
             Router.StringResponse(context, response.ExecutionResult, "application/json");
             
-            // log
+            // log & metrics
             sw.Stop();
             Log.Info(
                 $"Handled request in {sw.ElapsedMilliseconds} ms, " +
                 $"sent {context.Response.ContentLength64} bytes."
+            );
+            metricsManager.RecordExecutionRequestFinished(
+                durationSeconds: sw.ElapsedMilliseconds / 1000.0,
+                responseSizeBytes: context.Response.ContentLength64
             );
         }
     }

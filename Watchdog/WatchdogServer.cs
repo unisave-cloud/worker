@@ -46,7 +46,8 @@ namespace Watchdog
                 requestQueue,
                 initializer,
                 healthStateManager,
-                executionKernel
+                executionKernel,
+                metricsManager
             );
             httpServer = new HttpServer(
                 port: config.Port,
