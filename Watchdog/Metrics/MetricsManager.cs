@@ -1,6 +1,7 @@
 using System;
 using System.Text;
 using Watchdog.Metrics.Cpu;
+using Watchdog.Metrics.Memory;
 using Watchdog.Metrics.Other;
 
 namespace Watchdog.Metrics
@@ -12,6 +13,9 @@ namespace Watchdog.Metrics
         private readonly CpuUsageCounter cpuUsageCounter;
         private readonly CpuUtilizationGauge cpuUtilizationGauge1M;
         private readonly CpuUtilizationGauge cpuUtilizationGauge5M;
+
+        private readonly MemoryUsageGauge memoryUsageGauge;
+        private readonly GcMemoryGauge gcMemoryGauge;
 
         private readonly UptimeCounter uptimeCounter;
         
@@ -52,6 +56,23 @@ namespace Watchdog.Metrics
                 ["backend"] = config.WorkerBackendId
             };
             
+            memoryUsageGauge = new MemoryUsageGauge(
+                name: "worker_memory_usage_bytes",
+                help: "Current memory usage in bytes, including all " +
+                      "memory regardless of when it was accessed"
+            ) {
+                ["environment"] = config.WorkerEnvironmentId,
+                ["backend"] = config.WorkerBackendId
+            };
+            
+            gcMemoryGauge = new GcMemoryGauge(
+                name: "worker_gc_memory_usage_bytes",
+                help: "Managed memory usage in bytes, according to the GC class"
+            ) {
+                ["environment"] = config.WorkerEnvironmentId,
+                ["backend"] = config.WorkerBackendId
+            };
+            
             uptimeCounter = new UptimeCounter(
                 name: "worker_uptime_seconds",
                 help: "Worker instance uptime seconds"
@@ -73,8 +94,14 @@ namespace Watchdog.Metrics
             cpuUsageCounter.ToPrometheusTextFormat(sb);
             cpuUtilizationGauge1M.ToPrometheusTextFormat(sb);
             cpuUtilizationGauge5M.ToPrometheusTextFormat(sb);
+            sb.AppendLine();
+            
+            memoryUsageGauge.ToPrometheusTextFormat(sb);
+            gcMemoryGauge.ToPrometheusTextFormat(sb);
+            sb.AppendLine();
             
             uptimeCounter.ToPrometheusTextFormat(sb);
+            sb.AppendLine();
 
             return sb.ToString();
         }

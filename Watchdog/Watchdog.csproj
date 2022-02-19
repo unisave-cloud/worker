@@ -57,6 +57,8 @@
     <Compile Include="Metrics\Cpu\CpuUsageCounter.cs" />
     <Compile Include="Metrics\Cpu\CpuUtilizationGauge.cs" />
     <Compile Include="Metrics\Cpu\CpuUtilizationTracker.cs" />
+    <Compile Include="Metrics\Memory\GcMemoryGauge.cs" />
+    <Compile Include="Metrics\Memory\MemoryUsageGauge.cs" />
     <Compile Include="Metrics\MetricsCounter.cs" />
     <Compile Include="Metrics\MetricsManager.cs" />
     <Compile Include="Metrics\Other\UptimeCounter.cs" />

@@ -17,7 +17,9 @@ namespace Watchdog.Metrics.Cpu
 
         public static double PerformMeasurement()
         {
-            string nsText = File.ReadAllText("/sys/fs/cgroup/cpu/cpuacct.usage");
+            string nsText = File.ReadAllText(
+                "/sys/fs/cgroup/cpu/cpuacct.usage"
+            );
             ulong ns = ulong.Parse(nsText);
             return ns * 1e-9;
         }
