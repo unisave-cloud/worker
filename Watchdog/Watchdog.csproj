@@ -61,6 +61,7 @@
     <Compile Include="Metrics\Memory\MemoryUsageGauge.cs" />
     <Compile Include="Metrics\MetricsCounter.cs" />
     <Compile Include="Metrics\MetricsManager.cs" />
+    <Compile Include="Metrics\Network\NetstatGauge.cs" />
     <Compile Include="Metrics\Other\UptimeCounter.cs" />
     <Compile Include="Metrics\PrometheusMetric.cs" />
     <Compile Include="Program.cs" />
