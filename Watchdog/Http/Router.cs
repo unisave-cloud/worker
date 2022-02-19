@@ -3,6 +3,7 @@ using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using Watchdog.Execution;
+using Watchdog.Metrics;
 
 namespace Watchdog.Http
 {
@@ -10,11 +11,17 @@ namespace Watchdog.Http
     {
         private readonly HealthStateManager healthStateManager;
         private readonly RequestQueue requestQueue;
+        private readonly MetricsManager metricsManager;
 
-        public Router(HealthStateManager healthStateManager, RequestQueue requestQueue)
+        public Router(
+            HealthStateManager healthStateManager,
+            RequestQueue requestQueue,
+            MetricsManager metricsManager
+        )
         {
             this.healthStateManager = healthStateManager;
             this.requestQueue = requestQueue;
+            this.metricsManager = metricsManager;
         }
 
         /// <summary>
@@ -57,7 +64,10 @@ namespace Watchdog.Http
                 && context.Request.Url.AbsolutePath == "/metrics")
             {
                 context.Response.StatusCode = 200;
-                StringResponse(context, "TODO: metrics\n");
+                StringResponse(
+                    context,
+                    metricsManager.ToPrometheusTextFormat()
+                );
                 return Task.CompletedTask;
             }
             

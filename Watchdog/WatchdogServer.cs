@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using Watchdog.Execution;
 using Watchdog.Http;
+using Watchdog.Metrics;
 
 namespace Watchdog
 {
@@ -18,6 +19,7 @@ namespace Watchdog
 
         private readonly HealthStateManager healthStateManager;
         private readonly Initializer initializer;
+        private readonly MetricsManager metricsManager;
         private readonly RequestQueue requestQueue;
         private readonly RequestConsumer requestConsumer;
         private readonly ExecutionKernel executionKernel;
@@ -31,6 +33,7 @@ namespace Watchdog
             healthStateManager = new HealthStateManager();
             httpClient = new HttpClient();
             initializer = new Initializer(httpClient);
+            metricsManager = new MetricsManager();
             requestQueue = new RequestQueue(healthStateManager, config.MaxQueueLength);
             executionKernel = new ExecutionKernel(
                 healthStateManager,
@@ -44,7 +47,7 @@ namespace Watchdog
             );
             httpServer = new HttpServer(
                 config.Port,
-                new Router(healthStateManager, requestQueue)
+                new Router(healthStateManager, requestQueue, metricsManager)
             );
         }
         
@@ -106,6 +109,7 @@ namespace Watchdog
             requestConsumer?.Dispose();
             executionKernel?.Dispose();
             requestQueue?.Dispose();
+            metricsManager?.Dispose();
             httpClient?.Dispose();
             healthStateManager?.Dispose();
             
