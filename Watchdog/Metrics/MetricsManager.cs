@@ -82,7 +82,7 @@ namespace Watchdog.Metrics
             };
             
             networkRxGauge = new NetstatGauge(
-                name: "worker_network_rx_total_bytes",
+                name: "worker_network_rx_bytes_total",
                 help: "Total bytes received via the IP protocol",
                 netstatGroup: "IpExt",
                 netstatValue: "InOctets"
@@ -92,7 +92,7 @@ namespace Watchdog.Metrics
             };
             
             networkTxGauge = new NetstatGauge(
-                name: "worker_network_tx_total_bytes",
+                name: "worker_network_tx_bytes_total",
                 help: "Total bytes transmitted via the IP protocol",
                 netstatGroup: "IpExt",
                 netstatValue: "OutOctets"
