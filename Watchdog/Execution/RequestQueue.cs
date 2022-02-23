@@ -51,8 +51,15 @@ namespace Watchdog.Execution
             // unhealthy worker
             if (!healthStateManager.IsHealthy())
             {
-                RejectRequestBecauseWorkerUnhealthy(context);
-                return;
+                // We do not want to reject requests just because we are
+                // unhealthy. We typically set ourselves unhealthy when we
+                // want to be restarted by kubernetes and k8s will decide
+                // to stop sending us requests. Before that happens, some
+                // requests will manage to sneak through and we better handle
+                // them to provide smooth experience to the users.
+                // (warning, since this is technically OK, but unhealthy state
+                // of the worker in an of itself is NOT OK)
+                Log.Warning("Received a request despite being unhealthy.");
             }
             
             // handle queuing
@@ -111,19 +118,6 @@ namespace Watchdog.Execution
             {
                 Monitor.PulseAll(queueLock);
             }
-        }
-
-        private void RejectRequestBecauseWorkerUnhealthy(HttpListenerContext context)
-        {
-            // EXPLANATION:
-            // Worker is unhealthy and so it won't serve requests.
-            // Wait for the worker to restart or send the request
-            // to a different worker instead.
-            
-            context.Response.StatusCode = 500;
-            Router.StringResponse(context, "Worker is unhealthy\n");
-            
-            Log.Warning("Rejected request due to being unhealthy.");
         }
 
         private void RejectRequestBecauseQueueIsFull(HttpListenerContext context)
