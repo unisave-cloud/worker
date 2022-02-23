@@ -22,6 +22,19 @@ namespace Watchdog.Http
             listener = new HttpListener();
             listener.Prefixes.Add("http://*:" + port + "/");
 
+            // Ignore errors related to being unable to send response to the
+            // client. For metrics/helathchecks such an error is not a problem.
+            // For the execution requests from the gateway, not being able to
+            // send the request means the gateway is unable to receive it and
+            // it therefore notices and reports the problem.
+            //
+            // Write exceptions typically occur when the connection
+            // breaks due to:
+            // - network problems
+            // - client gave up on waiting - doesn't want the response anymore
+            // - client crashed
+            listener.IgnoreWriteExceptions = true;
+
             this.router = router;
             this.verbose = verbose;
         }

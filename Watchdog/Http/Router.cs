@@ -117,13 +117,6 @@ namespace Watchdog.Http
                     responseBytes.Length
                 );
             }
-            catch (Exception e)
-            {
-                Log.Warning(
-                    "Method Router.StringResponse did nothing " +
-                    "due to exception: " + e.Message
-                );
-            }
             finally
             {
                 context.Response.OutputStream.Close();
