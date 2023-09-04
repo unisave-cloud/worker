@@ -1,4 +1,6 @@
+using System;
 using System.IO;
+using System.Linq;
 
 namespace Watchdog.Metrics.Cpu
 {
@@ -17,11 +19,29 @@ namespace Watchdog.Metrics.Cpu
 
         public static double PerformMeasurement()
         {
-            string nsText = File.ReadAllText(
-                "/sys/fs/cgroup/cpu/cpuacct.usage"
-            );
-            ulong ns = ulong.Parse(nsText);
-            return ns * 1e-9;
+            if (Directory.Exists("/sys/fs/cgroup/cpu"))
+            {
+                string nsText = File.ReadAllText(
+                    "/sys/fs/cgroup/cpu/cpuacct.usage"
+                );
+                ulong ns = ulong.Parse(nsText);
+                return ns * 1e-9;
+            }
+            else
+            {
+                string line = File.ReadLines(
+                    "/sys/fs/cgroup/cpu.stat"
+                ).FirstOrDefault(l => l.StartsWith("usage_usec"));
+
+                if (line == null)
+                    throw new Exception(
+                        "usage_usec not found in /sys/fs/cgroup/cpu.stat"
+                    );
+
+                string usText = line.Trim().Split(' ')[1];
+                ulong us = ulong.Parse(usText);
+                return us * 1e-6;
+            }
         }
     }
 }

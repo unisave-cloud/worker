@@ -8,5 +8,5 @@ using System.Runtime.CompilerServices;
 [assembly: AssemblyCompany("Jiří Mayer")]
 [assembly: AssemblyProduct("Unisave Watchdog")]
 
-[assembly: AssemblyVersion("0.6.4.0")]
-[assembly: AssemblyInformationalVersion("0.6.4")]
+[assembly: AssemblyVersion("0.6.5.0")]
+[assembly: AssemblyInformationalVersion("0.6.5-dev")]

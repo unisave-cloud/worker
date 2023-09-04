@@ -9,11 +9,22 @@ namespace Watchdog.Metrics.Memory
 
         protected override double GetMetricValue()
         {
-            string bytesText = File.ReadAllText(
-                "/sys/fs/cgroup/memory/memory.usage_in_bytes"
-            );
-            ulong bytes = ulong.Parse(bytesText);
-            return (double) bytes;
+            if (Directory.Exists("/sys/fs/cgroup/memory"))
+            {
+                string bytesText = File.ReadAllText(
+                    "/sys/fs/cgroup/memory/memory.usage_in_bytes"
+                );
+                ulong bytes = ulong.Parse(bytesText);
+                return (double)bytes;
+            }
+            else
+            {
+                string bytesText = File.ReadAllText(
+                    "/sys/fs/cgroup/memory.current"
+                );
+                ulong bytes = ulong.Parse(bytesText);
+                return (double)bytes;
+            }
         }
     }
 }
