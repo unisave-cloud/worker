@@ -13,6 +13,8 @@ run:
 	docker run --rm -it -p 8080:8080 \
 	-e WATCHDOG_DUMMY_INITIALIZATION=true \
 	-e REQUEST_TIMEOUT_SECONDS=3 \
+	--memory 250m \
+	--cpus 0.25 \
 	$(TAG)
 
 run-sh:
