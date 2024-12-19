@@ -1,6 +1,6 @@
 # Configuration
 
-The watchdog process can be configured via environment variables:
+The worker process can be configured via environment variables:
 
 | Variable                         | Description |
 |----------------------------------|-------------|
