@@ -82,6 +82,8 @@ namespace UnisaveWorker.Concurrency
                     return;
                 }
                 
+                // TODO: check queue full, respond with 429 too many requests
+                
                 // else enter the queue
                 tcs = new TaskCompletionSource<object>();
                 waitingRequests.Enqueue(tcs);

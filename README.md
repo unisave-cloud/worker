@@ -37,6 +37,7 @@ The list of environment variables for configuration has a separate [documentatio
 - Initialization
 - Metrics
 - Execution
+- [Concurrency](docs/concurrency.md)
 
 
 ## Testing

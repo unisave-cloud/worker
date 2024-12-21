@@ -9,15 +9,6 @@ namespace UnisaveWorker
     {
         public static void Main(string[] args)
         {
-            // TODO: owin http listener
-            // https://github.com/evicertia/Katana/blob/master/src/Microsoft.Owin.Host.HttpListener/OwinHttpListener.cs
-            
-            // TODO: overview of async-await in .NET
-            // https://devblogs.microsoft.com/dotnet/configureawait-faq/
-            
-            // TODO: limiting thread-concurrency via a task scheduler
-            // https://stackoverflow.com/questions/69222176/run-valuetasks-on-a-custom-thread-pool
-            
             Config config = Config.LoadFromEnv();
             
             using (var app = new WorkerApplication(config))
