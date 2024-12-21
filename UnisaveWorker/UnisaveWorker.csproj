@@ -57,6 +57,9 @@
         <Reference Include="System.Xml"/>
     </ItemGroup>
     <ItemGroup>
+        <Compile Include="Concurrency\LimitedConcurrencyTaskScheduler.cs" />
+        <Compile Include="Concurrency\RequestConcurrencyMiddleware.cs" />
+        <Compile Include="Concurrency\ThreadConcurrencyMiddleware.cs" />
         <Compile Include="ExceptionLoggingMiddleware.cs" />
         <Compile Include="OwinExtensions.cs" />
         <Compile Include="Program.cs"/>

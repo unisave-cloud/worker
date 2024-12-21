@@ -7,6 +7,7 @@ List of things to add, specify, or fix.
 
 - [ ] Measure memory leakage during long running.
 - [ ] Implement aging so that workers get restarted when they reach a certain age and therefore get rid of memory leaks.
+- [ ] Handle server shutdown (cancellation token) in concurrency middlewares.
 
 
 ## APIs

@@ -1,6 +1,7 @@
 using System.Threading.Tasks;
 using Microsoft.Owin;
 using Owin;
+using UnisaveWorker.Concurrency;
 using Watchdog;
 using Watchdog.Metrics;
 
@@ -28,7 +29,18 @@ namespace UnisaveWorker
             // catches uncaught exceptions and logs them
             appBuilder.Use<ExceptionLoggingMiddleware>();
             
-            appBuilder.Route("GET", "/", ProcessRequest);
+            // handle unisave requests
+            appBuilder.MapWhen(
+                ctx => ctx.Request.Method == "POST" &&
+                       ctx.Request.Path.Value == "/",
+                branch => branch
+                    // TODO: add middlewares for initialization and other stuff
+                    // Wrap them into "ConcurrencyManagementMiddleware" that loads
+                    // the concurrency from ENV and uses both internally as needed.
+                    .Run(ProcessRequest)
+            );
+            
+            // handle other HTTP requests
             appBuilder.Route("GET", "/_/health", HealthCheck);
             appBuilder.Route("GET", "/metrics", Metrics);
         }
