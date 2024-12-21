@@ -37,10 +37,10 @@ namespace UnisaveWorker.Concurrency
             
             this.next = next;
             
-            var scheduler1 = new LimitedConcurrencyLevelTaskScheduler(
+            var scheduler = new LimitedConcurrencyLevelTaskScheduler(
                 maxConcurrency
             );
-            taskFactory = new TaskFactory(scheduler1);
+            taskFactory = new TaskFactory(scheduler);
         }
         
         public async Task Invoke(IDictionary<string, object> environment)
