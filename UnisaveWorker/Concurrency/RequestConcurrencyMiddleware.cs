@@ -1,6 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.Json;
 using System.Threading.Tasks;
+using Microsoft.Owin;
+using Watchdog;
 
 namespace UnisaveWorker.Concurrency
 {
@@ -24,6 +27,11 @@ namespace UnisaveWorker.Concurrency
         /// How many requests are currently admitted
         /// </summary>
         private int currentConcurrency = 0;
+
+        /// <summary>
+        /// Maximum number of waiting requests
+        /// </summary>
+        private readonly int maxQueueLength;
         
         /// <summary>
         /// One TCS for each waiting request. Completing the TCS wakes up
@@ -32,6 +40,11 @@ namespace UnisaveWorker.Concurrency
         /// </summary>
         private readonly Queue<TaskCompletionSource<object>> waitingRequests
             = new Queue<TaskCompletionSource<object>>();
+
+        /// <summary>
+        /// This exception is thrown internally when the request queue gets full
+        /// </summary>
+        private class QueueIsFullException : Exception { }
         
         /// <summary>
         /// Lock for access to the shared state
@@ -46,18 +59,35 @@ namespace UnisaveWorker.Concurrency
         /// Maximum number of allowed concurrent requests
         /// through this middleware
         /// </param>
-        public RequestConcurrencyMiddleware(AppFunc next, int maxConcurrency)
+        /// <param name="maxQueueLength">
+        /// Maximum number of requests waiting to be executed,
+        /// when queue fills up, it generates 429 responses
+        /// </param>
+        public RequestConcurrencyMiddleware(
+            AppFunc next,
+            int maxConcurrency,
+            int maxQueueLength
+        )
         {
             if (maxConcurrency < 1)
                 throw new ArgumentOutOfRangeException(nameof(maxConcurrency));
             
             this.next = next;
             this.maxConcurrency = maxConcurrency;
+            this.maxQueueLength = maxQueueLength;
         }
 
         public async Task Invoke(IDictionary<string, object> environment)
         {
-            await AcquirePermissionToRun();
+            try
+            {
+                await AcquirePermissionToRun();
+            }
+            catch (QueueIsFullException)
+            {
+                await RespondWith429QueueIsFull(environment);
+                return;
+            }
 
             try
             {
@@ -82,7 +112,9 @@ namespace UnisaveWorker.Concurrency
                     return;
                 }
                 
-                // TODO: check queue full, respond with 429 too many requests
+                // we cannot acquire the permission if the queue is full
+                if (waitingRequests.Count >= maxQueueLength)
+                    throw new QueueIsFullException();
                 
                 // else enter the queue
                 tcs = new TaskCompletionSource<object>();
@@ -117,6 +149,36 @@ namespace UnisaveWorker.Concurrency
             
             // wake up the waiting request
             tcs.SetResult(null);
+        }
+
+        private async Task RespondWith429QueueIsFull(
+            IDictionary<string, object> environment
+        )
+        {
+            var ctx = new OwinContext(environment);
+            
+            // send the 429 response
+            var body = new JsonObject {
+                ["error"] = true,
+                ["code"] = 429,
+                ["message"] = $"Worker queue in the " +
+                              $"{nameof(RequestConcurrencyMiddleware)} is full."
+            };
+            await ctx.SendResponse(
+                statusCode: 429,
+                body: body.ToString(),
+                contentType: "application/json"
+            );
+            
+            // log a warning
+            environment.TryGetValue(
+                "worker.RequestIndex",
+                out object requestIndex
+            );
+            Log.Warning(
+                $"Request {requestIndex} bounced due to " +
+                $"{nameof(RequestConcurrencyMiddleware)} queue being full."
+            );
         }
     }
 }

@@ -81,7 +81,7 @@ When the request executes with an exception, it also returns `200 OK` with this 
 ```
 
 
-## 409: Initialization recipe URL
+## 409: Missing initialization recipe URL
 
 The initialization recipe URL is used only when the worker has not yet been initialized. Otherwise it gets ignored by the worker (and thus can be missing).
 
@@ -108,10 +108,14 @@ When the worker is overwhelmed and cannot accept any more requests, it responds 
 }
 ```
 
+See the [concurrency documentation](concurrency.md) to learn more.
+
 
 ## 500: Uncaught exception
 
 If there's an uncaught exception in the request processing, it should be logged and the `500 Internal Server Error` response should be returned.
+
+See the `ExceptionLoggingMiddleware` class.
 
 
 ## 503: Worker startup

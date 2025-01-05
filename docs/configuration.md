@@ -2,6 +2,8 @@
 
 The worker process can be configured via environment variables:
 
+> **Note:** To see the default values, see the defaults in `Config.cs`.
+
 | Variable                         | Description |
 |----------------------------------|-------------|
 | `WATCHDOG_SERVER_PORT`           | Port to have the HTTP server listen on |
@@ -12,3 +14,6 @@ The worker process can be configured via environment variables:
 | `WORKER_ENVIRONMENT_ID`          | Environment ID of the worker pool, may be empty (must be for eager pools) |
 | `WORKER_BACKEND_ID`              | Backend ID of the worker pool, may be empty (must be for eager pools) |
 | `VERBOSE_HTTP_SERVER`            | When `true`, the HTTP server will print additional information |
+| `WORKER_DEFAULT_REQUEST_CONCURRENCY` | Limits concurrent requests, if missing, do not limit |
+| `WORKER_DEFAULT_THREAD_CONCURRENCY` | Limits concurrent threads, if missing, do not limit |
+| `WORKER_DEFAULT_MAX_QUEUE_LENGTH` | Maximum number of waiting Unisave requests |

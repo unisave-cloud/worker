@@ -38,13 +38,14 @@ The list of environment variables for configuration has a separate [documentatio
 - Metrics
 - Execution
 - [Concurrency](docs/concurrency.md)
+- [Custom OWIN Environment Keys](docs/custom-owin-environment-keys.md)
 
 
 ## Testing
 
 To start the worker after cloning the repo and test it before deployment, you can apply progressively more complex tests:
 
-1. **Unit testing:** From Rider, launch unit tests to verify the functionality of internal pieces. (NOTE: there are no unit tests yet...)
+1. **Unit testing:** From Rider, launch unit tests to verify the functionality of internal pieces.
 2. **Locust worker testing:** In [locust](https://github.com/unisave-cloud/locust?tab=readme-ov-file#test-suite-overview) repository, there are *Worker* tests, that are designed to be run against a worker process running inside Rider. Start with the [Worker Echo Test](https://github.com/unisave-cloud/locust/blob/master/docs/worker-echo.md) to see how to initialize the worker and how to send individual requests. Then use the [Worker Mixed Load Test](https://github.com/unisave-cloud/locust/blob/master/docs/worker-mixed-load.md) to see how the worker performs in a complex concurrent scenario.
 3. **Locust against docker:** You can do the same setup, but run the tests against `make run` docker container with limited memory and CPU allocation to see how it breaks when overwhelmed.
 4. **Locust minikube:** You can build the worker and run it in the minikube cluster and use [Engine Evolution Test](https://github.com/unisave-cloud/locust/blob/master/docs/engine-evolution.md) to stress the worker in the context of the whole cluster to see how it scales to multiple instances. You can then in addition start dropping in bombs (long timeout requests) to see how it handles those.

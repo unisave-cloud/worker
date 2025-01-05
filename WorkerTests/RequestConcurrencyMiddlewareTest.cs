@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Threading.Tasks;
+using Microsoft.Owin;
 using NUnit.Framework;
 using UnisaveWorker.Concurrency;
 
@@ -47,7 +49,8 @@ namespace WorkerTests
             // create the middleware we are about to test
             var middleware = new RequestConcurrencyMiddleware(
                 next: MyAppFunc,
-                maxConcurrency: 10
+                maxConcurrency: 10,
+                maxQueueLength: 500
             );
             
             // submit 30 tasks into the pipeline
@@ -76,6 +79,61 @@ namespace WorkerTests
             Assert.AreEqual(0, currentConcurrency);
             Assert.AreEqual(30, finishedRequests);
             Assert.AreEqual(10, highestConcurrency);
+        }
+
+        [Test]
+        public async Task ItLimitsQueueLength()
+        {
+            // a barrier that halts requests until submitted
+            var tcs = new TaskCompletionSource<int>();
+            
+            // a dummy request handler
+            async Task MyAppFunc(IDictionary<string, object> env)
+            {
+                // just wait for the barrier to be submitted
+                await tcs.Task;
+            }
+            
+            // create the middleware we are about to test
+            var middleware = new RequestConcurrencyMiddleware(
+                next: MyAppFunc,
+                maxConcurrency: 10,
+                maxQueueLength: 50
+            );
+            
+            // submit 60 tasks into the pipeline,
+            // which should fill up the queue exactly
+            List<Task> requestTasks = new List<Task>();
+            for (int i = 0; i < 60; i++)
+            {
+                requestTasks.Add(
+                    Task.Run(() => middleware.Invoke(null))
+                );
+            }
+            
+            // the next submitted request will be rejected immediately
+            var ctx = DummyContext();
+            await Task.Run(() => middleware.Invoke(ctx.Environment));
+            Assert.AreEqual(429, ctx.Response.StatusCode);
+            
+            // release the barrier
+            tcs.SetResult(42);
+            
+            // wait for all requests to finish
+            await Task.WhenAll(requestTasks.ToArray());
+        }
+
+        /// <summary>
+        /// Creates a dummy OWIN context to pass into the middleware
+        /// </summary>
+        private IOwinContext DummyContext()
+        {
+            var env = new Dictionary<string, object> {
+                ["owin.ResponseBody"] = new MemoryStream(),
+                ["owin.ResponseHeaders"] = new Dictionary<string, string[]>()
+            };
+            
+            return new OwinContext(env);
         }
     }
 }
