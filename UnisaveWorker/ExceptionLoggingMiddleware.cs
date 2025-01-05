@@ -9,6 +9,10 @@ namespace UnisaveWorker
 {
     using AppFunc = Func<IDictionary<string, object>, Task>;
     
+    /// <summary>
+    /// Catches uncaught request processing exception (from all routes),
+    /// logs them to console and closes the request with 500 response.
+    /// </summary>
     public class ExceptionLoggingMiddleware
     {
         private readonly AppFunc next;
