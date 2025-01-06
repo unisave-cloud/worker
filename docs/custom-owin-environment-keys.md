@@ -7,8 +7,8 @@ This is a list of custom OWIN keys set for each environment (each Unisave reques
 
 ## Legacy facet API
 
-Temporary values extracted for the legacy facet invocation API by `LegacyApiParsingMiddleware`:
+Values that are present only because of the `LegacyApiTranslationMiddleware`:
 
-- `worker.FacetClass` Name of the facet class to invoke. Type `string`. Assigned by `LegacyApiParsingMiddleware`.
-- `worker.FacetMethod` Name of the facet method to invoke. Type `string`. Assigned by `LegacyApiParsingMiddleware`.
-- `worker.Env` Environment variables sent with the legacy facet call. Type `Dictionary<string, string>`. Assigned by `LegacyApiParsingMiddleware`.
+- `worker.ExecutionDuration` Execution duration of the finished request in seconds. Type `double`. Assigned by `AccessLoggingMiddleware`. Later used by the translation middleware.
+- `worker.Env` Environment variables sent with the legacy facet call. Type `Dictionary<string, string>`. Assigned by `LegacyApiTranslationMiddleware`.
+- `worker.EnvString` Environment variables as string. Type `string`. Assigned by `LegacyApiTranslationMiddleware`.

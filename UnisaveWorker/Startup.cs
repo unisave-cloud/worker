@@ -1,3 +1,4 @@
+using System.Json;
 using System.Threading.Tasks;
 using Microsoft.Owin;
 using Owin;
@@ -34,6 +35,8 @@ namespace UnisaveWorker
                 ctx => ctx.Request.Method == "POST" &&
                        ctx.Request.Path.Value == "/",
                 branch => branch
+                    .Use<LegacyApiTranslationMiddleware>()
+                    .Use<AccessLoggingMiddleware>()
                     // TODO: add middlewares for initialization and other stuff
                     // Wrap them into "ConcurrencyManagementMiddleware" that loads
                     // the concurrency from ENV and uses both internally as needed.
@@ -47,8 +50,19 @@ namespace UnisaveWorker
 
         private async Task ProcessRequest(IOwinContext context)
         {
-            // TODO: process requests
-            await context.SendResponse(200, "TODO: process requests\n");
+            // TODO: actually process requests
+
+            var body = new JsonObject() {
+                ["status"] = "ok",
+                ["returned"] = "DUMMY-RESPONSE",
+                ["logs"] = new JsonArray()
+            };
+            
+            await context.SendResponse(
+                statusCode: 200,
+                body: body.ToString(),
+                contentType: "application/json"
+            );
         }
 
         private async Task HealthCheck(IOwinContext context)

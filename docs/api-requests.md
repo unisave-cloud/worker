@@ -59,7 +59,9 @@ When the request is successfully executed, it returns `200 OK` with this body:
     "result": "ok",
     "returned": null,
     "special": {
-        "sessionId": "DpVNxtkzCBqDx-o="
+        "sessionId": "DpVNxtkzCBqDx-o=",
+        "logs": [],
+        "executionDuration": 0.021
     }
 }
 ```
@@ -75,7 +77,9 @@ When the request executes with an exception, it also returns `200 OK` with this 
         "StackTraceString": "   at UnisaveWorker"
     },
     "special": {
-        "sessionId": "DpVNxtkzCBqDx-o="
+        "sessionId": "DpVNxtkzCBqDx-o=",
+        "logs": [],
+        "executionDuration": 0.021
     }
 }
 ```

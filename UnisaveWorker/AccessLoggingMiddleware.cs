@@ -36,6 +36,9 @@ namespace UnisaveWorker
             await next(environment);
             executionStopwatch.Stop();
             
+            environment["worker.ExecutionDuration"]
+                = executionStopwatch.ElapsedMilliseconds / 1000.0;
+            
             LogAccess(environment, executionStopwatch.ElapsedMilliseconds);
         }
 
@@ -51,24 +54,14 @@ namespace UnisaveWorker
             long milliseconds
         )
         {
-            // NOTE: This will log Unisave HTTP requests as they come from the
-            // gateway, after the protocol between the gateway and the worker
-            // is updated to handle any HTTP request.
-            // Currently, it's an approximation of what it will look like.
-            
             int requestIndex = environment["worker.RequestIndex"] as int? ?? -1;
-            string facetClass = environment["worker.FacetClass"] as string;
-            string facetMethod = environment["worker.FacetMethod"] as string;
             
             string id = "R" + requestIndex; // will be request ID sent via header
             string now = DateTime.UtcNow.ToString("yyyy-dd-MM H:mm:ss");
             
             var ctx = new OwinContext(environment);
-            // string method = ctx.Request.Method;
-            string method = "POST";
-            // string path = ctx.Request.Path.Value;
-            string path = $"/{facetClass}/{facetMethod}";
-            
+            string method = ctx.Request.Method;
+            string path = ctx.Request.Path.Value;
             string status = ctx.Response.StatusCode.ToString();
             string bytesSent = ctx.Response.Headers["Content-Length"] ?? "-";
             

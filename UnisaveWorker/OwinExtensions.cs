@@ -20,7 +20,7 @@ namespace UnisaveWorker
                 branch => branch.Run(handler)
             );
         }
-        
+
         public static async Task SendResponse(
             this IOwinContext context,
             int statusCode = 200,
@@ -30,11 +30,17 @@ namespace UnisaveWorker
         {
             context.Response.ContentType = contentType;
             context.Response.StatusCode = statusCode;
-            
+
             if (body == null)
+            {
                 context.Response.Body.Close();
+            }
             else
+            {
+                context.Response.Headers["Content-Length"]
+                    = body.Length.ToString();
                 await context.Response.WriteAsync(body);
+            }
         }
     }
 }
