@@ -60,7 +60,7 @@ namespace UnisaveWorker
             // parse out environment variables to be used for this request
             string environmentVariables = body["env"];
             context.Environment["worker.EnvString"] = environmentVariables;
-            context.Environment["worker.Env"] = ParseEnvVars(environmentVariables);
+            context.Environment["worker.EnvDict"] = ParseEnvVars(environmentVariables);
 
             // parse method parameters
             JsonObject methodParameters = (JsonObject)body["methodParameters"];
