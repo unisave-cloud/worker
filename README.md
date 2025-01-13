@@ -34,7 +34,7 @@ The list of environment variables for configuration has a separate [documentatio
 - [Configuration](docs/configuration.md)
 - [External APIs](docs/external-apis.md)
 - Code architecture
-- Initialization
+- [Initialization](docs/initialization.md)
 - Metrics
 - Execution
 - [Unisave Environment Variables](docs/unisave-environment-variables.md)

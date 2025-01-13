@@ -55,8 +55,3 @@ http://minio.unisave.minikube/unisave-dev/unisave-framework/0.11.0/UnityEngine.p
 It starts with a header stating the version `UNISAVE_SANDBOX_RECIPE v1` and then a list of pairs of lines, first the relative file path and second its URL for download.
 
 These download URLs are generated when the recipe is requested and they are temporary, signed object storage URLs. They point to Digital Ocean Spaces in production.
-
-
-## Loading DLLs
-
-TODO

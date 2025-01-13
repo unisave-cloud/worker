@@ -22,12 +22,6 @@ namespace UnisaveWorker
             // or the user started some rogue threads,
             // this kills all of them:
             Environment.Exit(0);
-            
-            // TODO: playing around with JSON, useful for ENV parsing
-            // System.Json namespace docs:
-            // https://learn.microsoft.com/en-us/dotnet/api/system.json?view=netframework-4.7.2
-            // JsonValue x = JsonValue.Parse("{'foo': 'bar'}".Replace("'", "\""));
-            // Console.WriteLine((string)x["foo"]);
         }
 
         private static void WaitForTermination()

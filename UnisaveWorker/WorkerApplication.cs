@@ -1,5 +1,7 @@
 using System;
+using System.Net.Http;
 using Microsoft.Owin.Hosting;
+using UnisaveWorker.Initialization;
 using Watchdog;
 using Watchdog.Metrics;
 
@@ -11,8 +13,10 @@ namespace UnisaveWorker
 
         private readonly HealthStateManager healthStateManager;
         private readonly MetricsManager metricsManager;
+        private readonly HttpClient httpClient;
+        private readonly UnisaveWorker.Initialization.Initializer initializer;
 
-        private IDisposable httpServer;
+        private IDisposable? httpServer;
         
         public WorkerApplication(Config config)
         {
@@ -21,6 +25,8 @@ namespace UnisaveWorker
             // TODO: construct all services
             healthStateManager = new HealthStateManager();
             metricsManager = new MetricsManager(config);
+            httpClient = new HttpClient();
+            initializer = new RecipeV1Initializer(httpClient);
         }
         
         public void Start()
@@ -29,14 +35,14 @@ namespace UnisaveWorker
             
             // initialize services
             healthStateManager.Initialize();
-            // InitializeAsync().GetAwaiter().GetResult();
+            initializer.AttemptEagerInitialization();
             // executionKernel.Initialize();
             // requestConsumer.Initialize();
             
             // then start the HTTP server
             StartHttpServer();
             
-            Log.Info("Unisave Watchdog running.");
+            Log.Info("Unisave Worker running.");
         }
 
         private void StartHttpServer()
@@ -44,7 +50,8 @@ namespace UnisaveWorker
             // pass services into the HTTP router
             var startup = new Startup(
                 healthStateManager,
-                metricsManager
+                metricsManager,
+                initializer
             );
             
             string url = "http://*:" + config.Port;
@@ -66,9 +73,10 @@ namespace UnisaveWorker
             // requestConsumer?.Dispose();
             // executionKernel?.Dispose();
             // requestQueue?.Dispose();
-            metricsManager?.Dispose();
-            // httpClient?.Dispose();
-            healthStateManager?.Dispose();
+            initializer.Dispose();
+            metricsManager.Dispose();
+            httpClient.Dispose();
+            healthStateManager.Dispose();
             
             Log.Info("Bye.");
         }

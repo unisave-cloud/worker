@@ -40,6 +40,8 @@ namespace UnisaveWorker.Concurrency
         /// </summary>
         private readonly Queue<TaskCompletionSource<object>> waitingRequests
             = new Queue<TaskCompletionSource<object>>();
+        
+        // TODO: implement request cancellation for waiting requests
 
         /// <summary>
         /// This exception is thrown internally when the request queue gets full

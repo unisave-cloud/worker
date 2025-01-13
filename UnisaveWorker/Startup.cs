@@ -3,8 +3,10 @@ using System.Threading.Tasks;
 using Microsoft.Owin;
 using Owin;
 using UnisaveWorker.Concurrency;
+using UnisaveWorker.Initialization;
 using Watchdog;
 using Watchdog.Metrics;
+using Initializer = UnisaveWorker.Initialization.Initializer;
 
 namespace UnisaveWorker
 {
@@ -15,13 +17,16 @@ namespace UnisaveWorker
     {
         private readonly HealthStateManager healthStateManager;
         private readonly MetricsManager metricsManager;
+        private readonly Initializer initializer;
 
         public Startup(
             HealthStateManager healthStateManager,
-            MetricsManager metricsManager
+            MetricsManager metricsManager,
+            Initializer initializer
         )
         {
             this.metricsManager = metricsManager;
+            this.initializer = initializer;
             this.healthStateManager = healthStateManager;
         }
 
@@ -40,6 +45,9 @@ namespace UnisaveWorker
                     // TODO: add middlewares for initialization and other stuff
                     // Wrap them into "ConcurrencyManagementMiddleware" that loads
                     // the concurrency from ENV and uses both internally as needed.
+                    .Use<InitializationMiddleware>(initializer)
+                    // TODO: assembly loading middleware
+                    // TODO: legacy / new framework (backend) executor
                     .Run(ProcessRequest)
             );
             

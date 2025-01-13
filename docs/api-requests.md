@@ -122,6 +122,21 @@ If there's an uncaught exception in the request processing, it should be logged 
 See the `ExceptionLoggingMiddleware` class.
 
 
+## 503: Worker initialization failed
+
+When the worker tried to initialize but the initialization process failed, requests that wait for the initialization the finish will be rejected with the response message:
+
+```json
+{
+    "error": true,
+    "code": 503,
+    "errorMessage": "Worker initialization failed."
+}
+```
+
+See the `InitializationMiddleware` class.
+
+
 ## 503: Worker startup
 
 When the worker is starting up and the HTTP server is not yet running, it rejects any incomming requests (XYZ refused to connect). The connection is refused at the TCP level.
