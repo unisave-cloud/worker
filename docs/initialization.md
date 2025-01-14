@@ -18,7 +18,7 @@ All the instructions for what files to download and from where are part of the r
 
 In the current working folder of the worker process (the same folder where the `UnisaveWorker.exe` file is located), a folder named `backend` is created and into that folder all the game backend files are downloaded. That folder serves as the root for the game backend files, including any possible assets in the future (its contents would mirror the structure of a Unity project folder in that case).
 
-During worker startup, if this folder exists, it gets deleted. This is to make debugging from Rider easier and it should not happen in production (where the folder should not be present in the container to begin with). Therefore an appropriate warning is logged to the console.
+During worker initialization, if this folder already exists, it gets deleted. This is to make debugging from Rider easier and to clear out any mess from a potential previous failed initialization. It should not happen in production under normal circumstances though (where the folder should not be present in the container to begin with). Therefore an appropriate warning is logged to the console.
 
 
 ## Unisave request handling during initialization
@@ -49,7 +49,7 @@ The `Initializer` service has these public methods:
 
 - `AttemptEagerInitialization()` called during worker startup by the `WorkerApplication` to trigger the eager initialization. If the environment variable is not set, it does nothing.
 - `TriggerInitializationIfNotRunning(string recipeUrl)` this method is called by the previous one and also by the `InitializationMiddleware` to start lazy initialization.
-- `WaitForFinishedInitialization(CancellationToken ct)` this async method is used by the `InitializationMiddleware` to wait for the initialization to finish. It does nothing if the initialization already completed. It throws `InitializationFailedException` if the initialization encountered an error. The error is however not part of the exception - that is logged separately directly into the console (because initialization as such does not belong to any request and runs independently).
+- `WaitForFinishedInitialization(CancellationToken ct)` this async method is used by the `InitializationMiddleware` to wait for the initialization to finish. It does nothing if the initialization already completed. It throws `InitializationFailedException` if the initialization encountered an error. The error is however not part of the exception - that is logged separately directly into the console (because initialization as such does not belong to any request and runs independently). It throws `OperationCanceledException` if the cancellation token is triggered.
 - `Dispose()` called by the `WorkerApplication` during shutdown.
 
 Then there is the abstract method that should be overriden to actually implement the initialization logic itself:

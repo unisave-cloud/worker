@@ -55,8 +55,22 @@ namespace UnisaveWorker.Initialization
                     context.Request.CallCancelled
                 );
             }
+            catch (OperationCanceledException)
+            {
+                // the HTTP request was cancelled, just do nothing
+                return;
+            }
             catch (InitializationFailedException)
             {
+                // the initialization was awaited, but it failed
+                await RespondWith503InitializationFailed(context);
+                return;
+            }
+            catch (InvalidOperationException)
+            {
+                // the initialization has not yet even started
+                // (which does not make sense - we have just started it,
+                // therefore it must have failed even before we began waiting)
                 await RespondWith503InitializationFailed(context);
                 return;
             }
