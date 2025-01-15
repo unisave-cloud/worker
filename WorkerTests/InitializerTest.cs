@@ -44,22 +44,25 @@ namespace WorkerTests
         }
         
         [Test]
-        public void ItInvokesInitializationMethod()
+        public async Task ItInvokesInitializationMethod()
         {
             bool wasInvoked = false;
             
+            var waitForStartTcs = new TaskCompletionSource<object>();
             var initializer = new DummyInitializer(
                 (url, ct) =>
                 {
                     Assert.AreEqual("http://recipe.url", url);
                     Assert.IsFalse(ct.IsCancellationRequested);
                     wasInvoked = true;
+                    waitForStartTcs.SetResult(null);
                     return Task.CompletedTask;
                 }
             );
             
             Assert.IsFalse(wasInvoked);
             initializer.TriggerInitializationIfNotRunning("http://recipe.url");
+            await waitForStartTcs.Task;
             Assert.IsTrue(wasInvoked);
         }
         
@@ -158,7 +161,7 @@ namespace WorkerTests
             cts.Cancel();
             
             // expect cancellation exception when awaited
-            Assert.ThrowsAsync<OperationCanceledException>(async () => {
+            Assert.CatchAsync<OperationCanceledException>(async () => {
                 await waitingTask;
             });
             
@@ -279,7 +282,8 @@ namespace WorkerTests
                 CancellationToken.None
             );
             tcs.SetResult(null);
-            waitingTask.Wait();
+            waitingTask.ContinueWith(_ => { }).Wait();
+            // NOTE: ContinueWith here swallows the exception
             
             // now, try waiting again and we should be uninitialized
             Assert.AreEqual(InitializationState.NonInitialized, initializer.State);
@@ -294,23 +298,45 @@ namespace WorkerTests
         public async Task InitializationCanBeCancelled()
         {
             var tcs = new TaskCompletionSource<object>();
+            var waitForStartTcs = new TaskCompletionSource<object>();
             var initializer = new DummyInitializer(
                 async (url, ct) => {
                     Assert.IsFalse(ct.IsCancellationRequested);
+                    waitForStartTcs.SetResult(null);
                     await tcs.Task;
                     Assert.IsTrue(ct.IsCancellationRequested);
+                    ct.ThrowIfCancellationRequested();
                 }
             );
             initializer.TriggerInitializationIfNotRunning("http://recipe.url");
+            await waitForStartTcs.Task;
             
             // cancel initialization
             initializer.Dispose();
             
-            // let the initialization action complete
-            tcs.SetResult(null);
-            await initializer.WaitForFinishedInitialization(
+            // start waiting
+            Task waitingTask = initializer.WaitForFinishedInitialization(
                 CancellationToken.None
             );
+            
+            // let the initialization action complete
+            tcs.SetResult(null);
+
+            bool cancelledException = false;
+            try
+            {
+                await waitingTask;
+            }
+            catch (OperationCanceledException)
+            {
+                cancelledException = true;
+            }
+            catch (Exception)
+            {
+                Assert.Fail();
+            }
+            
+            Assert.IsTrue(cancelledException);
         }
 
         [Test]

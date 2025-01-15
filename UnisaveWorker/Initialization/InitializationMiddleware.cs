@@ -57,7 +57,14 @@ namespace UnisaveWorker.Initialization
             }
             catch (OperationCanceledException)
             {
-                // the HTTP request was cancelled, just do nothing
+                // either the request, or the initialization was cancelled
+                
+                // if it was the request, we don't do anything
+                if (context.Request.CallCancelled.IsCancellationRequested)
+                    return;
+                
+                // else if it was the initialization, terminate the request
+                await RespondWith503InitializationCancelled(context);
                 return;
             }
             catch (InitializationFailedException)
@@ -86,6 +93,21 @@ namespace UnisaveWorker.Initialization
                 ["error"] = true,
                 ["code"] = 503,
                 ["message"] = "Worker initialization failed."
+            };
+            await ctx.SendResponse(
+                statusCode: 503,
+                body: body.ToString(),
+                contentType: "application/json"
+            );
+        }
+
+        private async Task RespondWith503InitializationCancelled(IOwinContext ctx)
+        {
+            var body = new JsonObject {
+                ["error"] = true,
+                ["code"] = 503,
+                ["message"] = "Worker initialization was cancelled, " +
+                              "the worker is probably shutting down."
             };
             await ctx.SendResponse(
                 statusCode: 503,
