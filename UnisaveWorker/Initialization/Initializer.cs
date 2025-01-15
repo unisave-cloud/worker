@@ -180,8 +180,12 @@ namespace UnisaveWorker.Initialization
         {
             // remove the folder with contents if it exists
             if (Directory.Exists(BackendFolderPath))
+            {
+                Log.Warning("Removing existing backend folder. This should " +
+                            "not normally happen in production.");
                 Directory.Delete(BackendFolderPath, recursive: true);
-            
+            }
+
             // create the empty folder
             Directory.CreateDirectory(BackendFolderPath);
         }

@@ -137,6 +137,21 @@ When the worker tried to initialize but the initialization process failed, reque
 See the `InitializationMiddleware` class.
 
 
+## 503: Worker initialization cancelled
+
+When the worker tried to initialize but that initialization was cancelled (because the worker is shutting down). All waiting requests will be rejected with the response message:
+
+```json
+{
+    "error": true,
+    "code": 503,
+    "errorMessage": "Worker initialization was cancelled, the worker is probably shutting down."
+}
+```
+
+See the `InitializationMiddleware` class.
+
+
 ## 503: Worker startup
 
 When the worker is starting up and the HTTP server is not yet running, it rejects any incomming requests (XYZ refused to connect). The connection is refused at the TCP level.

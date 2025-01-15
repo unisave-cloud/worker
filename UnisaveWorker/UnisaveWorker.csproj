@@ -13,7 +13,7 @@
         <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
         <FileAlignment>512</FileAlignment>
         <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
-        <LangVersion>8</LangVersion>
+        <LangVersion>9</LangVersion>
         <Nullable>enable</Nullable>
     </PropertyGroup>
     <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -69,6 +69,8 @@
         <Compile Include="Initialization\InitializationMiddleware.cs" />
         <Compile Include="Initialization\InitializationState.cs" />
         <Compile Include="Initialization\Initializer.cs" />
+        <Compile Include="Initialization\RecipeParsingException.cs" />
+        <Compile Include="Initialization\RecipeV1.cs" />
         <Compile Include="Initialization\RecipeV1Initializer.cs" />
         <Compile Include="LegacyApiTranslationMiddleware.cs" />
         <Compile Include="OwinExtensions.cs" />
