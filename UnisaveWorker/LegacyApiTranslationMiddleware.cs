@@ -106,7 +106,7 @@ namespace UnisaveWorker
             int receivedBytes = int.Parse(
                 context.Response.Headers["Content-Length"]
             );
-            string newSessionId = ExtractSessionIdFromCookies(context.Response);
+            string? newSessionId = ExtractSessionIdFromCookies(context.Response);
             JsonObject owinResponse = (JsonObject) JsonValue.Parse(
                 await new StreamReader(
                     new MemoryStream(
@@ -149,13 +149,13 @@ namespace UnisaveWorker
         /// Extracts session ID from Set-Cookie headers and
         /// returns null if that fails.
         /// </summary>
-        private static string ExtractSessionIdFromCookies(IOwinResponse response)
+        private static string? ExtractSessionIdFromCookies(IOwinResponse response)
         {
             const string prefix = "unisave_session_id=";
             
             IList<string> setCookies = response.Headers.GetValues("Set-Cookie");
 
-            string sessionCookie = setCookies?.FirstOrDefault(
+            string? sessionCookie = setCookies?.FirstOrDefault(
                 c => c.Contains(prefix)
             );
 
@@ -163,7 +163,7 @@ namespace UnisaveWorker
                 c => c.StartsWith(prefix)
             );
 
-            string sessionId = sessionCookie?.Substring(prefix.Length);
+            string? sessionId = sessionCookie?.Substring(prefix.Length);
 
             if (sessionId == null)
                 return null;

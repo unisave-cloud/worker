@@ -78,3 +78,35 @@ The execution parameters that enter the worker in the HTTP request also contain 
 The `gameAssemblyTypes` should contain only the types defined in the `backend.dll`, anotherwords it excludes the framework DLLs. However, including them nonetheless should not cause any problems.
 
 > **Concurrency:** The legacy framework API exects only one request to be executed at a time and checks that with a static variable. Therefore it is necessary to use a `RequestConcurrencyMiddleware` before passing requests into the framework.
+
+The response JSON has this structure on success:
+
+```json
+{
+    "result": "ok",
+    "returned": null,
+    "special": {
+        "sessionId": "DpVNxtkzCBqDx-o=",
+        "logs": [],
+        "executionDuration": 0.021
+    }
+}
+```
+
+And this on exception:
+
+```json
+{
+    "result": "exception",
+    "exception": {
+        "ClassName": "System.Exception",
+        "Message": "Hello world!",
+        "StackTraceString": "   at UnisaveWorker"
+    },
+    "special": {
+        "sessionId": "DpVNxtkzCBqDx-o=",
+        "logs": [],
+        "executionDuration": 0.021
+    }
+}
+```

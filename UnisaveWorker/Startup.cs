@@ -1,4 +1,3 @@
-using System.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Owin;
@@ -79,24 +78,7 @@ namespace UnisaveWorker
                         /* concurrency: */ 1,
                         /* max queue length: */ 20
                     )
-                    .Run(ProcessRequest) // TODO ...
-            );
-        }
-
-        private async Task ProcessRequest(IOwinContext context)
-        {
-            // TODO: actually process requests
-
-            var body = new JsonObject() {
-                ["status"] = "ok",
-                ["returned"] = "DUMMY-RESPONSE",
-                ["logs"] = new JsonArray()
-            };
-            
-            await context.SendResponse(
-                statusCode: 200,
-                body: body.ToString(),
-                contentType: "application/json"
+                    .Use<LegacyEntrypointExecutionMiddleware>(backendLoader)
             );
         }
 

@@ -24,7 +24,7 @@ namespace UnisaveWorker
         public static async Task SendResponse(
             this IOwinContext context,
             int statusCode = 200,
-            string body = null,
+            string? body = null,
             string contentType = "text/plain"
         )
         {

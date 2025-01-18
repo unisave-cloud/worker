@@ -112,12 +112,14 @@ namespace UnisaveWorker.Initialization
                 // remember all assemblies
                 assemblies.Add(assembly);
                 
+                string fileName = Path.GetFileName(filePath);
+                
                 // remember game assembly
-                if (filePath == "./backend.dll")
+                if (fileName == "backend.dll")
                     legacyGameAsm = assembly;
                 
                 // remember framework assembly
-                if (filePath == "./UnisaveFramework.dll")
+                if (fileName == "UnisaveFramework.dll")
                     legacyFrameworkAsm = assembly;
             }
             
