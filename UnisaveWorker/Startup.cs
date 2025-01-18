@@ -46,7 +46,6 @@ namespace UnisaveWorker
                     // Wrap them into "ConcurrencyManagementMiddleware" that loads
                     // the concurrency from ENV and uses both internally as needed.
                     .Use<InitializationMiddleware>(initializer)
-                    // TODO: assembly loading middleware
                     // TODO: legacy / new framework (backend) executor
                     .Run(ProcessRequest)
             );

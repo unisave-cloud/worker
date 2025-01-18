@@ -43,7 +43,17 @@ namespace UnisaveWorker.Initialization
         /// null if there is no initialization running
         /// </summary>
         private CancellationTokenSource? initializationCts;
-        
+
+        /// <summary>
+        /// Called at the end of initialization to load game backend assemblies
+        /// </summary>
+        public BackendLoader BackendLoader { get; }
+
+        protected Initializer(string owinStartupAttributeName)
+        {
+            BackendLoader = new BackendLoader(owinStartupAttributeName);
+        }
+
         /// <summary>
         /// Checks environment variables for the initialization recipe
         /// and then attempts to start eager initialization.
@@ -124,6 +134,8 @@ namespace UnisaveWorker.Initialization
                 
                 // run the initialization itself
                 await PerformInitialization(recipeUrl, cancellationToken);
+
+                LoadBackend();
             }
             catch (OperationCanceledException) // includes TaskCanceledException
             {
@@ -272,6 +284,14 @@ namespace UnisaveWorker.Initialization
             string recipeUrl,
             CancellationToken cancellationToken
         );
+
+        /// <summary>
+        /// Triggers the backend loader, in order to load backend assemblies
+        /// </summary>
+        protected virtual void LoadBackend()
+        {
+            BackendLoader.Load(BackendFolderPath);
+        }
         
         /// <summary>
         /// Stops the initialization process, if still running

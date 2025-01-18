@@ -48,6 +48,12 @@ namespace Watchdog
         /// The HTTP server should print a lot of additional information
         /// </summary>
         public bool VerboseHttpServer { get; set; }
+
+        /// <summary>
+        /// Friendly name of the OwinStartupAttribute used to find the Startup
+        /// class inside the game's assemblies
+        /// </summary>
+        public string OwinStartupAttribute { get; set; } = "UnisaveFramework";
         
         
         /////////////
@@ -70,7 +76,8 @@ namespace Watchdog
                 RequestTimeoutSeconds = GetEnvInteger("REQUEST_TIMEOUT_SECONDS", d.RequestTimeoutSeconds),
                 WorkerEnvironmentId = GetEnvString("WORKER_ENVIRONMENT_ID"),
                 WorkerBackendId = GetEnvString("WORKER_BACKEND_ID"),
-                VerboseHttpServer = GetEnvBool("VERBOSE_HTTP_SERVER", false)
+                VerboseHttpServer = GetEnvBool("VERBOSE_HTTP_SERVER", false),
+                OwinStartupAttribute = GetEnvString("WORKER_OWIN_STARTUP_ATTRIBUTE", d.OwinStartupAttribute)
             };
         }
 

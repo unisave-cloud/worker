@@ -16,7 +16,10 @@ namespace UnisaveWorker.Initialization
     {
         private readonly HttpClient http;
         
-        public RecipeV1Initializer(HttpClient http)
+        public RecipeV1Initializer(
+            HttpClient http,
+            string owinStartupAttributeName
+        ) : base(owinStartupAttributeName)
         {
             this.http = http;
         }

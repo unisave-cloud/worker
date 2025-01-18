@@ -16,7 +16,7 @@ namespace WorkerTests
 
         public DummyInitializer(
             Func<string, CancellationToken, Task> initializationLambda
-        )
+        ) : base("dummy")
         {
             this.initializationLambda = initializationLambda;
         }
@@ -27,6 +27,11 @@ namespace WorkerTests
         )
         {
             await initializationLambda.Invoke(recipeUrl, cancellationToken);
+        }
+
+        protected override void LoadBackend()
+        {
+            // do nothing
         }
     }
     

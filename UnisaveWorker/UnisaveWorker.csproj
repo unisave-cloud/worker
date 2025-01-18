@@ -65,6 +65,8 @@
         <Compile Include="Concurrency\RequestConcurrencyMiddleware.cs" />
         <Compile Include="Concurrency\ThreadConcurrencyMiddleware.cs" />
         <Compile Include="ExceptionLoggingMiddleware.cs" />
+        <Compile Include="Initialization\BackendLoader.cs" />
+        <Compile Include="Initialization\BackendNotLoadedException.cs" />
         <Compile Include="Initialization\InitializationFailedException.cs" />
         <Compile Include="Initialization\InitializationMiddleware.cs" />
         <Compile Include="Initialization\InitializationState.cs" />

@@ -26,7 +26,10 @@ namespace UnisaveWorker
             healthStateManager = new HealthStateManager();
             metricsManager = new MetricsManager(config);
             httpClient = new HttpClient();
-            initializer = new RecipeV1Initializer(httpClient);
+            initializer = new RecipeV1Initializer(
+                httpClient,
+                config.OwinStartupAttribute
+            );
         }
         
         public void Start()
