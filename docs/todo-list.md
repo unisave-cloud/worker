@@ -9,6 +9,7 @@ List of things to add, specify, or fix.
 - [ ] Implement aging so that workers get restarted when they reach a certain age and therefore get rid of memory leaks.
 - [ ] Handle server shutdown (cancellation token) in concurrency middlewares.
 - [ ] Add request concurrency queue length limit and enforce it with 429 status.
+- [ ] Load PDB files so that backend exceptions contain line numbers
 
 
 ## APIs

@@ -1,8 +1,10 @@
 using System.Json;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Owin;
 using Owin;
 using UnisaveWorker.Concurrency;
+using UnisaveWorker.Execution;
 using UnisaveWorker.Initialization;
 using Watchdog;
 using Watchdog.Metrics;
@@ -18,6 +20,7 @@ namespace UnisaveWorker
         private readonly HealthStateManager healthStateManager;
         private readonly MetricsManager metricsManager;
         private readonly Initializer initializer;
+        private readonly BackendLoader backendLoader;
 
         public Startup(
             HealthStateManager healthStateManager,
@@ -25,34 +28,59 @@ namespace UnisaveWorker
             Initializer initializer
         )
         {
+            this.healthStateManager = healthStateManager;
             this.metricsManager = metricsManager;
             this.initializer = initializer;
-            this.healthStateManager = healthStateManager;
+            this.backendLoader = initializer.BackendLoader;
         }
 
         public void Configuration(IAppBuilder appBuilder)
         {
             // catches uncaught exceptions and logs them
             appBuilder.Use<ExceptionLoggingMiddleware>();
-            
+
             // handle unisave requests
             appBuilder.MapWhen(
                 ctx => ctx.Request.Method == "POST" &&
                        ctx.Request.Path.Value == "/",
-                branch => branch
-                    .Use<LegacyApiTranslationMiddleware>()
-                    .Use<AccessLoggingMiddleware>()
-                    // TODO: add middlewares for initialization and other stuff
-                    // Wrap them into "ConcurrencyManagementMiddleware" that loads
-                    // the concurrency from ENV and uses both internally as needed.
-                    .Use<InitializationMiddleware>(initializer)
-                    // TODO: legacy / new framework (backend) executor
-                    .Run(ProcessRequest)
+                DefineUnisaveRequestProcessingBranch
             );
             
             // handle other HTTP requests
             appBuilder.Route("GET", "/_/health", HealthCheck);
             appBuilder.Route("GET", "/metrics", Metrics);
+        }
+
+        private void DefineUnisaveRequestProcessingBranch(IAppBuilder branch)
+        {
+            branch.Use<LegacyApiTranslationMiddleware>();
+            
+            branch.Use<AccessLoggingMiddleware>();
+            
+            // TODO: "ConcurrencyManagementMiddleware" that loads
+            // the concurrency from ENV and uses both internally as needed.
+            
+            branch.Use<InitializationMiddleware>(initializer);
+            
+            // Unisave request execution via the OWIN entrypoint
+            branch.MapWhen(
+                _ => backendLoader.HasOwinStartupConfigurationMethod,
+                b => b.Use<OwinStartupExecutionMiddleware>(
+                    backendLoader,
+                    (CancellationToken) branch.Properties["host.OnAppDisposing"]
+                )
+            );
+            
+            // Unisave request execution via the legacy framework entrypoint
+            branch.MapWhen(
+                _ => backendLoader.HasLegacyStartMethod,
+                b => b
+                    .Use<RequestConcurrencyMiddleware>(
+                        /* concurrency: */ 1,
+                        /* max queue length: */ 20
+                    )
+                    .Run(ProcessRequest) // TODO ...
+            );
         }
 
         private async Task ProcessRequest(IOwinContext context)

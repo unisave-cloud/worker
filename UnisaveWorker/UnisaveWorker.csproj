@@ -65,6 +65,7 @@
         <Compile Include="Concurrency\RequestConcurrencyMiddleware.cs" />
         <Compile Include="Concurrency\ThreadConcurrencyMiddleware.cs" />
         <Compile Include="ExceptionLoggingMiddleware.cs" />
+        <Compile Include="Execution\OwinStartupExecutionMiddleware.cs" />
         <Compile Include="Initialization\BackendLoader.cs" />
         <Compile Include="Initialization\BackendNotLoadedException.cs" />
         <Compile Include="Initialization\InitializationFailedException.cs" />
