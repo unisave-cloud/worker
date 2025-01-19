@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Microsoft.Owin;
 
 namespace UnisaveWorker.Concurrency
 {
@@ -20,7 +21,7 @@ namespace UnisaveWorker.Concurrency
     {
         private readonly AppFunc next;
 
-        private readonly TaskFactory taskFactory;
+        private TaskFactory taskFactory = null!;
         
         /// <summary>
         /// Constructs a new instance of the middleware
@@ -32,15 +33,25 @@ namespace UnisaveWorker.Concurrency
         /// </param>
         public ThreadConcurrencyMiddleware(AppFunc next, int maxConcurrency)
         {
+            this.next = next;
+            
+            // creates and sets the task factory field
+            SetMaxConcurrency(maxConcurrency);
+        }
+
+        /// <summary>
+        /// Change the thread concurrency level for future requests
+        /// </summary>
+        public void SetMaxConcurrency(int maxConcurrency)
+        {
             if (maxConcurrency < 1)
                 throw new ArgumentOutOfRangeException(nameof(maxConcurrency));
             
-            this.next = next;
-            
-            var scheduler = new LimitedConcurrencyLevelTaskScheduler(
-                maxConcurrency
+            taskFactory = new TaskFactory(
+                new LimitedConcurrencyLevelTaskScheduler(
+                    maxConcurrency
+                )
             );
-            taskFactory = new TaskFactory(scheduler);
         }
         
         public async Task Invoke(IDictionary<string, object> environment)
@@ -48,8 +59,13 @@ namespace UnisaveWorker.Concurrency
             // Roughly this, but with the custom scheduler:
             // await Task.Run(() => next(environment));
             
+            var context = new OwinContext(environment);
+            
             // Gets translated to this, when using a task factory:
-            Task<Task> wrappedTask = taskFactory.StartNew(() => next(environment));
+            Task<Task> wrappedTask = taskFactory.StartNew(
+                () => next(environment),
+                context.Request.CallCancelled
+            );
             Task requestTask = await wrappedTask;
             await requestTask;
             

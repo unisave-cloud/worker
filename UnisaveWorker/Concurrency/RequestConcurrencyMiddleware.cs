@@ -21,7 +21,7 @@ namespace UnisaveWorker.Concurrency
         /// <summary>
         /// Maximum number of in-flight requests
         /// </summary>
-        private readonly int maxConcurrency;
+        private int maxConcurrency;
         
         /// <summary>
         /// How many requests are currently admitted
@@ -31,18 +31,16 @@ namespace UnisaveWorker.Concurrency
         /// <summary>
         /// Maximum number of waiting requests
         /// </summary>
-        private readonly int maxQueueLength;
+        private int maxQueueLength;
         
         /// <summary>
         /// One TCS for each waiting request. Completing the TCS wakes up
         /// that waiting request and the request then assumes it has gotten
         /// the permission to run.
         /// </summary>
-        private readonly Queue<TaskCompletionSource<object>> waitingRequests
-            = new Queue<TaskCompletionSource<object>>();
+        private readonly Queue<TaskCompletionSource<object?>> waitingRequests
+            = new Queue<TaskCompletionSource<object?>>();
         
-        // TODO: implement request cancellation for waiting requests
-
         /// <summary>
         /// This exception is thrown internally when the request queue gets full
         /// </summary>
@@ -71,16 +69,43 @@ namespace UnisaveWorker.Concurrency
             int maxQueueLength
         )
         {
-            if (maxConcurrency < 1)
-                throw new ArgumentOutOfRangeException(nameof(maxConcurrency));
-            
             this.next = next;
-            this.maxConcurrency = maxConcurrency;
-            this.maxQueueLength = maxQueueLength;
+            SetMaxConcurrency(maxConcurrency);
+            SetMaxQueueLength(maxQueueLength);
+        }
+
+        /// <summary>
+        /// Changes the maximum concurrency level going forward
+        /// </summary>
+        public void SetMaxConcurrency(int newMaxConcurrency)
+        {
+            if (newMaxConcurrency < 1)
+                throw new ArgumentOutOfRangeException(nameof(newMaxConcurrency));
+            
+            lock (syncLock)
+            {
+                maxConcurrency = newMaxConcurrency;
+            }
+        }
+
+        /// <summary>
+        /// Changes the maximum queue length
+        /// </summary>
+        public void SetMaxQueueLength(int newMaxQueueLength)
+        {
+            if (newMaxQueueLength < 1)
+                throw new ArgumentOutOfRangeException(nameof(newMaxQueueLength));
+            
+            lock (syncLock)
+            {
+                maxQueueLength = newMaxQueueLength;
+            }
         }
 
         public async Task Invoke(IDictionary<string, object> environment)
         {
+            var context = new OwinContext(environment);
+            
             try
             {
                 await AcquirePermissionToRun();
@@ -93,6 +118,10 @@ namespace UnisaveWorker.Concurrency
 
             try
             {
+                // ignore the request if it was cancelled while waiting
+                if (context.Request.CallCancelled.IsCancellationRequested)
+                    return;
+                
                 // process the request
                 await next(environment);
             }
@@ -104,7 +133,7 @@ namespace UnisaveWorker.Concurrency
 
         private async Task AcquirePermissionToRun()
         {
-            TaskCompletionSource<object> tcs;
+            TaskCompletionSource<object?> tcs;
             lock (syncLock)
             {
                 // try just immediately running
@@ -119,7 +148,7 @@ namespace UnisaveWorker.Concurrency
                     throw new QueueIsFullException();
                 
                 // else enter the queue
-                tcs = new TaskCompletionSource<object>();
+                tcs = new TaskCompletionSource<object?>();
                 waitingRequests.Enqueue(tcs);
             }
             
@@ -130,7 +159,7 @@ namespace UnisaveWorker.Concurrency
 
         private void ReleasePermissionToRun()
         {
-            TaskCompletionSource<object> tcs;
+            TaskCompletionSource<object?> tcs;
             lock (syncLock)
             {
                 // if there are waiting requests, and we are not running over
