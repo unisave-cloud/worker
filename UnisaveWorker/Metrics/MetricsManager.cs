@@ -27,7 +27,10 @@ namespace UnisaveWorker.Metrics
 
         private readonly UptimeCounter uptimeCounter;
         
-        public MetricsManager(Config config)
+        public MetricsManager(
+            string? workerEnvironmentId,
+            string? workerBackendId
+        )
         {
             cpuUtilizationTracker = new CpuUtilizationTracker(
                 periodSeconds: 10.0,
@@ -38,8 +41,8 @@ namespace UnisaveWorker.Metrics
                 name: "worker_cpu_usage_seconds_total",
                 help: "Cumulative system CPU time consumed in seconds"
             ) {
-                ["environment"] = config.WorkerEnvironmentId,
-                ["backend"] = config.WorkerBackendId
+                ["environment"] = workerEnvironmentId,
+                ["backend"] = workerBackendId
             };
             
             cpuUtilizationGauge1M = new CpuUtilizationGauge(
@@ -49,8 +52,8 @@ namespace UnisaveWorker.Metrics
                 timeWindow: 60.0
             ) {
                 ["window"] = "1m",
-                ["environment"] = config.WorkerEnvironmentId,
-                ["backend"] = config.WorkerBackendId
+                ["environment"] = workerEnvironmentId,
+                ["backend"] = workerBackendId
             };
             
             cpuUtilizationGauge5M = new CpuUtilizationGauge(
@@ -60,8 +63,8 @@ namespace UnisaveWorker.Metrics
                 timeWindow: 5 * 60.0
             ) {
                 ["window"] = "5m",
-                ["environment"] = config.WorkerEnvironmentId,
-                ["backend"] = config.WorkerBackendId
+                ["environment"] = workerEnvironmentId,
+                ["backend"] = workerBackendId
             };
             
             memoryUsageGauge = new MemoryUsageGauge(
@@ -69,16 +72,16 @@ namespace UnisaveWorker.Metrics
                 help: "Current memory usage in bytes, including all " +
                       "memory regardless of when it was accessed"
             ) {
-                ["environment"] = config.WorkerEnvironmentId,
-                ["backend"] = config.WorkerBackendId
+                ["environment"] = workerEnvironmentId,
+                ["backend"] = workerBackendId
             };
             
             gcMemoryGauge = new GcMemoryGauge(
                 name: "worker_gc_memory_usage_bytes",
                 help: "Managed memory usage in bytes, according to the GC class"
             ) {
-                ["environment"] = config.WorkerEnvironmentId,
-                ["backend"] = config.WorkerBackendId
+                ["environment"] = workerEnvironmentId,
+                ["backend"] = workerBackendId
             };
             
             networkRxGauge = new NetstatGauge(
@@ -87,8 +90,8 @@ namespace UnisaveWorker.Metrics
                 netstatGroup: "IpExt",
                 netstatValue: "InOctets"
             ) {
-                ["environment"] = config.WorkerEnvironmentId,
-                ["backend"] = config.WorkerBackendId
+                ["environment"] = workerEnvironmentId,
+                ["backend"] = workerBackendId
             };
             
             networkTxGauge = new NetstatGauge(
@@ -97,40 +100,40 @@ namespace UnisaveWorker.Metrics
                 netstatGroup: "IpExt",
                 netstatValue: "OutOctets"
             ) {
-                ["environment"] = config.WorkerEnvironmentId,
-                ["backend"] = config.WorkerBackendId
+                ["environment"] = workerEnvironmentId,
+                ["backend"] = workerBackendId
             };
             
             requestCounter = new MetricsCounter(
                 name: "worker_requests_total",
                 help: "Total number of performed execution requests"
             ) {
-                ["environment"] = config.WorkerEnvironmentId,
-                ["backend"] = config.WorkerBackendId
+                ["environment"] = workerEnvironmentId,
+                ["backend"] = workerBackendId
             };
             
             requestDurationCounter = new MetricsCounter(
                 name: "worker_request_duration_seconds_total",
                 help: "Total number of seconds spent running execution requests"
             ) {
-                ["environment"] = config.WorkerEnvironmentId,
-                ["backend"] = config.WorkerBackendId
+                ["environment"] = workerEnvironmentId,
+                ["backend"] = workerBackendId
             };
             
             requestResponseSizeCounter = new MetricsCounter(
                 name: "worker_request_response_bytes_total",
                 help: "Size of all execution responses in bytes"
             ) {
-                ["environment"] = config.WorkerEnvironmentId,
-                ["backend"] = config.WorkerBackendId
+                ["environment"] = workerEnvironmentId,
+                ["backend"] = workerBackendId
             };
             
             uptimeCounter = new UptimeCounter(
                 name: "worker_uptime_seconds",
                 help: "Worker instance uptime seconds"
             ) {
-                ["environment"] = config.WorkerEnvironmentId,
-                ["backend"] = config.WorkerBackendId
+                ["environment"] = workerEnvironmentId,
+                ["backend"] = workerBackendId
             };
         }
 

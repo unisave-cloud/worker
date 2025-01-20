@@ -58,14 +58,16 @@ namespace UnisaveWorker.Initialization
         /// and then attempts to start eager initialization.
         /// Does nothing if those environment variables are not set up.
         /// </summary>
-        public void AttemptEagerInitialization()
+        /// <param name="recipeUrl">
+        /// The INITIALIZATION_RECIPE_URL environment variable name,
+        /// taken from the worker config.
+        /// </param>
+        public void AttemptEagerInitialization(
+            string? recipeUrl
+        )
         {
-            string? value = Environment.GetEnvironmentVariable(
-                "INITIALIZATION_RECIPE_URL"
-            );
-
             // do not eager initialize, if the variable is not set
-            if (string.IsNullOrEmpty(value))
+            if (string.IsNullOrEmpty(recipeUrl))
             {
                 Log.Info("Skipping eager initialization: " +
                          "Environment variable is not set.");
@@ -73,7 +75,7 @@ namespace UnisaveWorker.Initialization
             }
             
             // do not eager initialize, if the variable is not a URL
-            if (!Uri.IsWellFormedUriString(value, UriKind.Absolute))
+            if (!Uri.IsWellFormedUriString(recipeUrl, UriKind.Absolute))
             {
                 Log.Info("Skipping eager initialization: " +
                          "Environment variable is not a valid URI string.");
@@ -81,7 +83,7 @@ namespace UnisaveWorker.Initialization
             }
             
             Log.Info("Triggering eager initialization...");
-            TriggerInitializationIfNotRunning(value);
+            TriggerInitializationIfNotRunning(recipeUrl!);
         }
 
         /// <summary>

@@ -29,7 +29,10 @@ namespace UnisaveWorker
             this.config = config;
             
             shutdownManager = new GracefulShutdownManager();
-            metricsManager = new MetricsManager(config);
+            metricsManager = new MetricsManager(
+                workerEnvironmentId: config.WorkerEnvironmentId,
+                workerBackendId: config.WorkerBackendId
+            );
             httpClient = new HttpClient();
             initializer = new RecipeV1Initializer(
                 httpClient,
@@ -42,7 +45,9 @@ namespace UnisaveWorker
             PrintStartupMessage();
             
             // initialize services
-            initializer.AttemptEagerInitialization();
+            initializer.AttemptEagerInitialization(
+                config.InitializationRecipeUrl
+            );
             
             // then start the HTTP server
             StartHttpServer();
@@ -57,7 +62,7 @@ namespace UnisaveWorker
                 .InformationalVersion;
             
             Log.Info($"Starting Unisave Worker {version} ...");
-            Log.Info($"Listening on port: {config.Port}");
+            Log.Info($"Listening at URL {config.HttpUrl}");
             Log.Info("Process ID: " + Process.GetCurrentProcess().Id);
         }
 
@@ -71,9 +76,10 @@ namespace UnisaveWorker
                 initializer
             );
             
-            string url = "http://*:" + config.Port;
-            
-            httpServer = WebApp.Start(url, startup.Configuration);
+            httpServer = WebApp.Start(
+                url: config.HttpUrl, // e.g. "http://*:8080"
+                startup: startup.Configuration
+            );
         }
         
         /// <summary>

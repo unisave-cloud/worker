@@ -1,85 +1,69 @@
 using System;
+// ReSharper disable RedundantDefaultMemberInitializer
 
 namespace UnisaveWorker
 {
     public class Config
     {
         /// <summary>
-        /// What port to listen on with the HTTP server
+        /// What IP and Port to listen on with the HTTP server,
+        /// e.g. `http://*:8080`
         /// </summary>
-        public int Port { get; set; } = 8080;
+        public string HttpUrl { get; private set; } = "http://*:8080";
 
         /// <summary>
         /// Where to download the initialization recipe from
         /// May be null, then the URL need to be sent with each request
         /// or the dummy initialization is taking place
         /// </summary>
-        public string InitializationRecipeUrl { get; set; }
-        
-        /// <summary>
-        /// Initialize the worker to dummy framework and game for debugging
-        /// outside the rest of the unisave system
-        /// </summary>
-        public bool DummyInitialization { get; set; }
-
-        /// <summary>
-        /// Maximum length of the synchronizing request queue
-        /// </summary>
-        public int MaxQueueLength { get; set; } = 20;
-
-        /// <summary>
-        /// Timeout for request execution in seconds
-        /// </summary>
-        public int RequestTimeoutSeconds { get; set; } = 5;
+        public string? InitializationRecipeUrl { get; private set; } = null;
         
         /// <summary>
         /// Environment ID of the worker pool,
-        /// may be empty and is empty for eager pools
+        /// may be empty and is empty for eager pools.
+        /// Used for prometheus metrics.
         /// </summary>
-        public string WorkerEnvironmentId { get; set; }
-        
+        public string? WorkerEnvironmentId { get; private set; } = null;
+
         /// <summary>
         /// Backend ID of the worker pool,
-        /// may be empty and is empty for eager pools
+        /// may be empty and is empty for eager pools.
+        /// Used for prometheus metrics.
         /// </summary>
-        public string WorkerBackendId { get; set; }
-        
-        /// <summary>
-        /// The HTTP server should print a lot of additional information
-        /// </summary>
-        public bool VerboseHttpServer { get; set; }
+        public string? WorkerBackendId { get; private set; } = null;
 
         /// <summary>
         /// Default request concurrency level to use,
         /// unless overriden by the game backend.
         /// Null means unlimited.
         /// </summary>
-        public int? DefaultRequestConcurrency { get; set; } = null;
+        public int? DefaultRequestConcurrency { get; private set; } = 500;
 
         /// <summary>
         /// Default thread concurrency level to use,
         /// unless overriden by the game backend.
         /// Null means unlimited.
         /// </summary>
-        public int? DefaultThreadConcurrency { get; set; } = null;
+        public int? DefaultThreadConcurrency { get; private set; } = null;
         
         /// <summary>
         /// Default value for the maximum request queue length,
         /// unless overriden by the game backend.
         /// </summary>
-        public int DefaultMaxQueueLength { get; set; } = 20;
+        public int DefaultMaxQueueLength { get; private set; } = 20;
 
         /// <summary>
         /// Friendly name of the OwinStartupAttribute used to find the Startup
         /// class inside the game's assemblies
         /// </summary>
-        public string OwinStartupAttribute { get; set; } = "UnisaveFramework";
+        public string OwinStartupAttribute { get; private set; }
+            = "UnisaveFramework";
         
         /// <summary>
         /// How many seconds at most should the worker wait for pending requests
         /// when it's being terminated.
         /// </summary>
-        public int GracefulShutdownSeconds { get; set; } = 10;
+        public int GracefulShutdownSeconds { get; private set; } = 10;
         
         
         /////////////
@@ -95,29 +79,17 @@ namespace UnisaveWorker
             var d = new Config();
             
             return new Config {
-                Port = GetEnvInteger(
-                    "WATCHDOG_SERVER_PORT", d.Port
-                ),
+                HttpUrl = GetEnvString(
+                    "WORKER_HTTP_URL", d.HttpUrl
+                )!,
                 InitializationRecipeUrl = GetEnvString(
                     "INITIALIZATION_RECIPE_URL"
-                ),
-                DummyInitialization = GetEnvBool(
-                    "WATCHDOG_DUMMY_INITIALIZATION", false
-                ),
-                MaxQueueLength = GetEnvInteger(
-                    "MAX_QUEUE_LENGTH", d.MaxQueueLength
-                ),
-                RequestTimeoutSeconds = GetEnvInteger(
-                    "REQUEST_TIMEOUT_SECONDS", d.RequestTimeoutSeconds
                 ),
                 WorkerEnvironmentId = GetEnvString(
                     "WORKER_ENVIRONMENT_ID"
                 ),
                 WorkerBackendId = GetEnvString(
                     "WORKER_BACKEND_ID"
-                ),
-                VerboseHttpServer = GetEnvBool(
-                    "VERBOSE_HTTP_SERVER", false
                 ),
                 DefaultRequestConcurrency = GetEnvNullableInteger(
                     "WORKER_DEFAULT_REQUEST_CONCURRENCY",
@@ -134,7 +106,7 @@ namespace UnisaveWorker
                 OwinStartupAttribute = GetEnvString(
                     "WORKER_OWIN_STARTUP_ATTRIBUTE",
                     d.OwinStartupAttribute
-                ),
+                )!,
                 GracefulShutdownSeconds = GetEnvInteger(
                     "WORKER_GRACEFUL_SHUTDOWN_SECONDS",
                     d.GracefulShutdownSeconds
@@ -144,7 +116,7 @@ namespace UnisaveWorker
 
         private static int? GetEnvNullableInteger(string key, int? defaultValue = null)
         {
-            string s = GetEnvString(key);
+            string? s = GetEnvString(key);
 
             if (string.IsNullOrEmpty(s))
                 return defaultValue;
@@ -157,7 +129,7 @@ namespace UnisaveWorker
 
         private static int GetEnvInteger(string key, int defaultValue = 0)
         {
-            string s = GetEnvString(key);
+            string? s = GetEnvString(key);
 
             if (string.IsNullOrEmpty(s))
                 return defaultValue;
@@ -170,7 +142,7 @@ namespace UnisaveWorker
 
         private static bool GetEnvBool(string key, bool defaultValue = false)
         {
-            string s = GetEnvString(key);
+            string? s = GetEnvString(key);
             
             if (string.IsNullOrEmpty(s))
                 return defaultValue;
@@ -181,9 +153,9 @@ namespace UnisaveWorker
             return defaultValue;
         }
 
-        private static string GetEnvString(string key, string defaultValue = null)
+        private static string? GetEnvString(string key, string? defaultValue = null)
         {
-            string v = Environment.GetEnvironmentVariable(key);
+            string? v = Environment.GetEnvironmentVariable(key);
             
             if (string.IsNullOrEmpty(v))
                 v = defaultValue;

@@ -21,14 +21,14 @@ namespace UnisaveWorker.Metrics
             MetricType = type;
         }
         
-        public string this[string label]
+        public string? this[string label]
         {
             set
             {
                 if (string.IsNullOrEmpty(value))
                     labels.Remove(label);
                 else
-                    labels[label] = value;
+                    labels[label] = value!;
             }
         }
 
