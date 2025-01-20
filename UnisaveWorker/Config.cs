@@ -120,6 +120,9 @@ namespace UnisaveWorker
 
             if (string.IsNullOrEmpty(s))
                 return defaultValue;
+
+            if (s!.ToLowerInvariant() == "null")
+                return null;
             
             if (int.TryParse(s, out int i))
                 return i;
