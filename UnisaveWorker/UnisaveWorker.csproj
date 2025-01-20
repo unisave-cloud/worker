@@ -60,6 +60,7 @@
         <Reference Include="System.Xml"/>
     </ItemGroup>
     <ItemGroup>
+        <Compile Include="Concurrency\ConcurrencyManagementMiddleware.cs" />
         <Compile Include="Concurrency\LimitedConcurrencyTaskScheduler.cs" />
         <Compile Include="Concurrency\RequestConcurrencyMiddleware.cs" />
         <Compile Include="Concurrency\ThreadConcurrencyMiddleware.cs" />

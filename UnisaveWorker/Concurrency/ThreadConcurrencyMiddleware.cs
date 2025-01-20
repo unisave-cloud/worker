@@ -29,9 +29,9 @@ namespace UnisaveWorker.Concurrency
         /// <param name="next">The request handler to call next</param>
         /// <param name="maxConcurrency">
         /// Maximum number of allowed concurrent threads
-        /// behind this middleware
+        /// behind this middleware. Null means there is no limit.
         /// </param>
-        public ThreadConcurrencyMiddleware(AppFunc next, int maxConcurrency)
+        public ThreadConcurrencyMiddleware(AppFunc next, int? maxConcurrency)
         {
             this.next = next;
             
@@ -42,14 +42,27 @@ namespace UnisaveWorker.Concurrency
         /// <summary>
         /// Change the thread concurrency level for future requests
         /// </summary>
-        public void SetMaxConcurrency(int maxConcurrency)
+        /// <param name="maxConcurrency">
+        /// Maximum number of allowed concurrent threads
+        /// behind this middleware. Null means there is no limit.
+        /// </param>
+        public void SetMaxConcurrency(int? maxConcurrency)
         {
+            // no limiting at all
+            if (maxConcurrency == null)
+            {
+                taskFactory = new TaskFactory();
+                return;
+            }
+            
+            // faulty argument
             if (maxConcurrency < 1)
                 throw new ArgumentOutOfRangeException(nameof(maxConcurrency));
             
+            // limited thread concurrency task factory
             taskFactory = new TaskFactory(
                 new LimitedConcurrencyLevelTaskScheduler(
-                    maxConcurrency
+                    maxConcurrency.Value
                 )
             );
         }

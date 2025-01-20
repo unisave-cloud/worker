@@ -17,17 +17,20 @@ namespace UnisaveWorker
     /// </summary>
     public class Startup
     {
+        private readonly Config config;
         private readonly HealthStateManager healthStateManager;
         private readonly MetricsManager metricsManager;
         private readonly Initializer initializer;
         private readonly BackendLoader backendLoader;
 
         public Startup(
+            Config config,
             HealthStateManager healthStateManager,
             MetricsManager metricsManager,
             Initializer initializer
         )
         {
+            this.config = config;
             this.healthStateManager = healthStateManager;
             this.metricsManager = metricsManager;
             this.initializer = initializer;
@@ -56,9 +59,14 @@ namespace UnisaveWorker
             branch.Use<LegacyApiTranslationMiddleware>();
             
             branch.Use<AccessLoggingMiddleware>();
-            
-            // TODO: "ConcurrencyManagementMiddleware" that loads
-            // the concurrency from ENV and uses both internally as needed.
+
+            branch.Use<ConcurrencyManagementMiddleware>(
+                new ConcurrencyManagementMiddleware.State(
+                    RequestCc: config.DefaultRequestConcurrency,
+                    ThreadCc: config.DefaultThreadConcurrency,
+                    MaxQueueLength: config.DefaultMaxQueueLength
+                )
+            );
             
             branch.Use<InitializationMiddleware>(initializer);
             

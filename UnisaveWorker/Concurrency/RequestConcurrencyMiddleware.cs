@@ -57,15 +57,18 @@ namespace UnisaveWorker.Concurrency
         /// <param name="next">The request handler to call next</param>
         /// <param name="maxConcurrency">
         /// Maximum number of allowed concurrent requests
-        /// through this middleware
+        /// through this middleware. Null means there is no limit.
         /// </param>
         /// <param name="maxQueueLength">
         /// Maximum number of requests waiting to be executed,
-        /// when queue fills up, it generates 429 responses
+        /// when queue fills up, it generates 429 responses.
+        /// This value MUST be provided. Note that OWIN self-host has an
+        /// internal 1K pending request limit, so setting this higher is
+        /// unnecessary.
         /// </param>
         public RequestConcurrencyMiddleware(
             AppFunc next,
-            int maxConcurrency,
+            int? maxConcurrency,
             int maxQueueLength
         )
         {
@@ -77,20 +80,32 @@ namespace UnisaveWorker.Concurrency
         /// <summary>
         /// Changes the maximum concurrency level going forward
         /// </summary>
-        public void SetMaxConcurrency(int newMaxConcurrency)
+        /// <param name="newMaxConcurrency">
+        /// Maximum number of allowed concurrent requests
+        /// through this middleware. Null means there is no limit.
+        /// </param>
+        public void SetMaxConcurrency(int? newMaxConcurrency)
         {
-            if (newMaxConcurrency < 1)
+            if (newMaxConcurrency is < 1)
                 throw new ArgumentOutOfRangeException(nameof(newMaxConcurrency));
             
             lock (syncLock)
             {
-                maxConcurrency = newMaxConcurrency;
+                // use int.MaxValue for the "unlimited" case
+                maxConcurrency = newMaxConcurrency ?? int.MaxValue;
             }
         }
 
         /// <summary>
         /// Changes the maximum queue length
         /// </summary>
+        /// <param name="newMaxQueueLength">
+        /// Maximum number of requests waiting to be executed,
+        /// when queue fills up, it generates 429 responses.
+        /// This value MUST be provided. Note that OWIN self-host has an
+        /// internal 1K pending request limit, so setting this higher is
+        /// unnecessary.
+        /// </param>
         public void SetMaxQueueLength(int newMaxQueueLength)
         {
             if (newMaxQueueLength < 1)

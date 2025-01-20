@@ -8,7 +8,8 @@ List of things to add, specify, or fix.
 - [ ] Measure memory leakage during long running.
 - [ ] Implement aging so that workers get restarted when they reach a certain age and therefore get rid of memory leaks.
 - [ ] Load PDB files so that backend exceptions contain line numbers
-- [ ] During server shutdown, wait 10 seconds for in-flight requests to finish.
+- [ ] During server shutdown, wait 10 seconds for in-flight requests to finish. Implement this via a GracefulShutdownMiddleware that counts requests and responds 503 Shutting Down for any additional requests. Trigger this middleware before disposal (or rather its service). Belongs to the `Ingress` namespace.
+- [ ] Formalize error codes and responses and document them like ArangoDB has. Sections could be: general, concurrency, initialization, etc...
 
 
 ## APIs

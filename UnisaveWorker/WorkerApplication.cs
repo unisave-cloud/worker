@@ -52,6 +52,7 @@ namespace UnisaveWorker
         {
             // pass services into the HTTP router
             var startup = new Startup(
+                config,
                 healthStateManager,
                 metricsManager,
                 initializer

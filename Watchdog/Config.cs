@@ -50,6 +50,26 @@ namespace Watchdog
         public bool VerboseHttpServer { get; set; }
 
         /// <summary>
+        /// Default request concurrency level to use,
+        /// unless overriden by the game backend.
+        /// Null means unlimited.
+        /// </summary>
+        public int? DefaultRequestConcurrency { get; set; } = null;
+
+        /// <summary>
+        /// Default thread concurrency level to use,
+        /// unless overriden by the game backend.
+        /// Null means unlimited.
+        /// </summary>
+        public int? DefaultThreadConcurrency { get; set; } = null;
+        
+        /// <summary>
+        /// Default value for the maximum request queue length,
+        /// unless overriden by the game backend.
+        /// </summary>
+        public int DefaultMaxQueueLength { get; set; } = 20;
+
+        /// <summary>
         /// Friendly name of the OwinStartupAttribute used to find the Startup
         /// class inside the game's assemblies
         /// </summary>
@@ -69,16 +89,60 @@ namespace Watchdog
             var d = new Config();
             
             return new Config {
-                Port = GetEnvInteger("WATCHDOG_SERVER_PORT", d.Port),
-                InitializationRecipeUrl = GetEnvString("INITIALIZATION_RECIPE_URL"),
-                DummyInitialization = GetEnvBool("WATCHDOG_DUMMY_INITIALIZATION", false),
-                MaxQueueLength = GetEnvInteger("MAX_QUEUE_LENGTH", d.MaxQueueLength),
-                RequestTimeoutSeconds = GetEnvInteger("REQUEST_TIMEOUT_SECONDS", d.RequestTimeoutSeconds),
-                WorkerEnvironmentId = GetEnvString("WORKER_ENVIRONMENT_ID"),
-                WorkerBackendId = GetEnvString("WORKER_BACKEND_ID"),
-                VerboseHttpServer = GetEnvBool("VERBOSE_HTTP_SERVER", false),
-                OwinStartupAttribute = GetEnvString("WORKER_OWIN_STARTUP_ATTRIBUTE", d.OwinStartupAttribute)
+                Port = GetEnvInteger(
+                    "WATCHDOG_SERVER_PORT", d.Port
+                ),
+                InitializationRecipeUrl = GetEnvString(
+                    "INITIALIZATION_RECIPE_URL"
+                ),
+                DummyInitialization = GetEnvBool(
+                    "WATCHDOG_DUMMY_INITIALIZATION", false
+                ),
+                MaxQueueLength = GetEnvInteger(
+                    "MAX_QUEUE_LENGTH", d.MaxQueueLength
+                ),
+                RequestTimeoutSeconds = GetEnvInteger(
+                    "REQUEST_TIMEOUT_SECONDS", d.RequestTimeoutSeconds
+                ),
+                WorkerEnvironmentId = GetEnvString(
+                    "WORKER_ENVIRONMENT_ID"
+                ),
+                WorkerBackendId = GetEnvString(
+                    "WORKER_BACKEND_ID"
+                ),
+                VerboseHttpServer = GetEnvBool(
+                    "VERBOSE_HTTP_SERVER", false
+                ),
+                DefaultRequestConcurrency = GetEnvNullableInteger(
+                    "WORKER_DEFAULT_REQUEST_CONCURRENCY",
+                    d.DefaultRequestConcurrency
+                ),
+                DefaultThreadConcurrency = GetEnvNullableInteger(
+                    "WORKER_DEFAULT_THREAD_CONCURRENCY",
+                    d.DefaultThreadConcurrency
+                ),
+                DefaultMaxQueueLength = GetEnvInteger(
+                    "WORKER_DEFAULT_MAX_QUEUE_LENGTH",
+                    d.DefaultMaxQueueLength
+                ),
+                OwinStartupAttribute = GetEnvString(
+                    "WORKER_OWIN_STARTUP_ATTRIBUTE",
+                    d.OwinStartupAttribute
+                )
             };
+        }
+
+        private static int? GetEnvNullableInteger(string key, int? defaultValue = null)
+        {
+            string s = GetEnvString(key);
+
+            if (string.IsNullOrEmpty(s))
+                return defaultValue;
+            
+            if (int.TryParse(s, out int i))
+                return i;
+
+            return defaultValue;
         }
 
         private static int GetEnvInteger(string key, int defaultValue = 0)
