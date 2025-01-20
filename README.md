@@ -40,6 +40,7 @@ The list of environment variables for configuration has a separate [documentatio
 - [Unisave Environment Variables](docs/unisave-environment-variables.md)
 - [Concurrency](docs/concurrency.md)
 - [Custom OWIN Environment Keys](docs/custom-owin-environment-keys.md)
+- [Loading PDB files](docs/loading-pdb-files.md)
 
 
 ## Testing
