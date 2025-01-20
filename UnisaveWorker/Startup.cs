@@ -4,6 +4,7 @@ using Microsoft.Owin;
 using Owin;
 using UnisaveWorker.Concurrency;
 using UnisaveWorker.Execution;
+using UnisaveWorker.Ingress;
 using UnisaveWorker.Initialization;
 using Watchdog;
 using Watchdog.Metrics;

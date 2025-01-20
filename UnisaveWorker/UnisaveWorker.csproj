@@ -60,13 +60,14 @@
         <Reference Include="System.Xml"/>
     </ItemGroup>
     <ItemGroup>
-        <Compile Include="AccessLoggingMiddleware.cs" />
         <Compile Include="Concurrency\LimitedConcurrencyTaskScheduler.cs" />
         <Compile Include="Concurrency\RequestConcurrencyMiddleware.cs" />
         <Compile Include="Concurrency\ThreadConcurrencyMiddleware.cs" />
-        <Compile Include="ExceptionLoggingMiddleware.cs" />
         <Compile Include="Execution\LegacyEntrypointExecutionMiddleware.cs" />
         <Compile Include="Execution\OwinStartupExecutionMiddleware.cs" />
+        <Compile Include="Ingress\AccessLoggingMiddleware.cs" />
+        <Compile Include="Ingress\ExceptionLoggingMiddleware.cs" />
+        <Compile Include="Ingress\LegacyApiTranslationMiddleware.cs" />
         <Compile Include="Initialization\BackendLoader.cs" />
         <Compile Include="Initialization\BackendNotLoadedException.cs" />
         <Compile Include="Initialization\InitializationFailedException.cs" />
@@ -76,7 +77,6 @@
         <Compile Include="Initialization\RecipeParsingException.cs" />
         <Compile Include="Initialization\RecipeV1.cs" />
         <Compile Include="Initialization\RecipeV1Initializer.cs" />
-        <Compile Include="LegacyApiTranslationMiddleware.cs" />
         <Compile Include="OwinExtensions.cs" />
         <Compile Include="Program.cs"/>
         <Compile Include="Properties\AssemblyInfo.cs"/>

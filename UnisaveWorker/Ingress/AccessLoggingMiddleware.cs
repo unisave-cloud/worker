@@ -5,7 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Owin;
 
-namespace UnisaveWorker
+namespace UnisaveWorker.Ingress
 {
     using AppFunc = Func<IDictionary<string, object>, Task>;
     

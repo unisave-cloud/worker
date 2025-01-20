@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.Owin;
 using Watchdog;
 
-namespace UnisaveWorker
+namespace UnisaveWorker.Ingress
 {
     using AppFunc = Func<IDictionary<string, object>, Task>;
     
