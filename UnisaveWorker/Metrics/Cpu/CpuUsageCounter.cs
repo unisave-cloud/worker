@@ -2,7 +2,7 @@ using System;
 using System.IO;
 using System.Linq;
 
-namespace Watchdog.Metrics.Cpu
+namespace UnisaveWorker.Metrics.Cpu
 {
     /// <summary>
     /// Cumulative system CPU time consumed in seconds

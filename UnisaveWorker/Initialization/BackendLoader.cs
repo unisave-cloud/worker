@@ -5,7 +5,6 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using Microsoft.Owin;
-using Watchdog;
 
 namespace UnisaveWorker.Initialization
 {

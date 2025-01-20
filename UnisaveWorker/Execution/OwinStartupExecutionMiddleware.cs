@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using Microsoft.Owin.Builder;
 using Owin;
 using UnisaveWorker.Initialization;
-using Watchdog;
 
 namespace UnisaveWorker.Execution
 {

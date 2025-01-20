@@ -1,11 +1,11 @@
 using System;
 using System.Text;
-using Watchdog.Metrics.Cpu;
-using Watchdog.Metrics.Memory;
-using Watchdog.Metrics.Network;
-using Watchdog.Metrics.Other;
+using UnisaveWorker.Metrics.Cpu;
+using UnisaveWorker.Metrics.Memory;
+using UnisaveWorker.Metrics.Network;
+using UnisaveWorker.Metrics.Other;
 
-namespace Watchdog.Metrics
+namespace UnisaveWorker.Metrics
 {
     public class MetricsManager : IDisposable
     {

@@ -6,9 +6,7 @@ using UnisaveWorker.Concurrency;
 using UnisaveWorker.Execution;
 using UnisaveWorker.Ingress;
 using UnisaveWorker.Initialization;
-using Watchdog;
-using Watchdog.Metrics;
-using Initializer = UnisaveWorker.Initialization.Initializer;
+using UnisaveWorker.Metrics;
 
 namespace UnisaveWorker
 {
@@ -20,7 +18,6 @@ namespace UnisaveWorker
         private readonly Config config;
         
         private readonly GracefulShutdownManager shutdownManager;
-        private readonly HealthStateManager healthStateManager;
         private readonly MetricsManager metricsManager;
         private readonly Initializer initializer;
         private readonly BackendLoader backendLoader;
@@ -28,13 +25,11 @@ namespace UnisaveWorker
         public Startup(
             Config config,
             GracefulShutdownManager shutdownManager,
-            HealthStateManager healthStateManager,
             MetricsManager metricsManager,
             Initializer initializer
         )
         {
             this.config = config;
-            this.healthStateManager = healthStateManager;
             this.metricsManager = metricsManager;
             this.initializer = initializer;
             this.shutdownManager = shutdownManager;
@@ -100,14 +95,15 @@ namespace UnisaveWorker
 
         private async Task HealthCheck(IOwinContext context)
         {
-            if (healthStateManager.IsHealthy())
-            {
-                await context.SendResponse(200, "OK\n");
-            }
-            else
-            {
-                await context.SendResponse(503, "Service Unavailable\n");
-            }
+            // The goal of a health check is to verify that the worker is
+            // able to respond to HTTP requests (i.e. to detect memory or
+            // CPU related issues). Therefore, we just reply that we are healthy.
+            
+            // NOTE: During shutdown, the graceful shutdown middleware will
+            // respond with 503, which signals unhealthy worker.
+            // However, that's when we are shutting down any ways, so it's true.
+            
+            await context.SendResponse(200, "OK\n");
         }
         
         private async Task Metrics(IOwinContext context)

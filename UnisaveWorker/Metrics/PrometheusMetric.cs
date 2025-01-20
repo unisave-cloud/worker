@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
 
-namespace Watchdog.Metrics
+namespace UnisaveWorker.Metrics
 {
     public abstract class PrometheusMetric
     {

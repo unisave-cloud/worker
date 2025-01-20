@@ -5,8 +5,7 @@ using System.Reflection;
 using Microsoft.Owin.Hosting;
 using UnisaveWorker.Ingress;
 using UnisaveWorker.Initialization;
-using Watchdog;
-using Watchdog.Metrics;
+using UnisaveWorker.Metrics;
 
 namespace UnisaveWorker
 {
@@ -19,10 +18,9 @@ namespace UnisaveWorker
         private readonly Config config;
 
         private readonly GracefulShutdownManager shutdownManager;
-        private readonly HealthStateManager healthStateManager;
         private readonly MetricsManager metricsManager;
         private readonly HttpClient httpClient;
-        private readonly UnisaveWorker.Initialization.Initializer initializer;
+        private readonly Initializer initializer;
 
         private IDisposable? httpServer;
         
@@ -31,7 +29,6 @@ namespace UnisaveWorker
             this.config = config;
             
             shutdownManager = new GracefulShutdownManager();
-            healthStateManager = new HealthStateManager();
             metricsManager = new MetricsManager(config);
             httpClient = new HttpClient();
             initializer = new RecipeV1Initializer(
@@ -45,7 +42,6 @@ namespace UnisaveWorker
             PrintStartupMessage();
             
             // initialize services
-            healthStateManager.Initialize();
             initializer.AttemptEagerInitialization();
             
             // then start the HTTP server
@@ -71,7 +67,6 @@ namespace UnisaveWorker
             var startup = new Startup(
                 config,
                 shutdownManager,
-                healthStateManager,
                 metricsManager,
                 initializer
             );
@@ -104,7 +99,6 @@ namespace UnisaveWorker
             initializer.Dispose();
             metricsManager.Dispose();
             httpClient.Dispose();
-            healthStateManager.Dispose();
             
             Log.Info("Bye.");
         }

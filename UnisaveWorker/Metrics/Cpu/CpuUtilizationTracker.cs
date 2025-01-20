@@ -3,7 +3,7 @@ using System.Threading;
 using System.Timers;
 using Timer = System.Timers.Timer;
 
-namespace Watchdog.Metrics.Cpu
+namespace UnisaveWorker.Metrics.Cpu
 {
     public class CpuUtilizationTracker : IDisposable
     {

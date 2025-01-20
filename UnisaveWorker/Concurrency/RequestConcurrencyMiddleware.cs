@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Json;
 using System.Threading.Tasks;
 using Microsoft.Owin;
-using Watchdog;
 
 namespace UnisaveWorker.Concurrency
 {

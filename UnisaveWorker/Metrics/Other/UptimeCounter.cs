@@ -1,6 +1,6 @@
 using System;
 
-namespace Watchdog.Metrics.Other
+namespace UnisaveWorker.Metrics.Other
 {
     /// <summary>
     /// Worker instance uptime seconds

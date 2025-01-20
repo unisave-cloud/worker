@@ -1,7 +1,6 @@
 ﻿using System;
 using Mono.Unix;
 using Mono.Unix.Native;
-using Watchdog;
 
 namespace UnisaveWorker
 {

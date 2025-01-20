@@ -1,4 +1,4 @@
-namespace Watchdog.Metrics
+namespace UnisaveWorker.Metrics
 {
     /// <summary>
     /// Counts a single value

@@ -1,4 +1,4 @@
-namespace Watchdog.Metrics.Cpu
+namespace UnisaveWorker.Metrics.Cpu
 {
     public class CpuUtilizationGauge : PrometheusMetric
     {

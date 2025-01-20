@@ -1,6 +1,6 @@
 using System.IO;
 
-namespace Watchdog.Metrics.Memory
+namespace UnisaveWorker.Metrics.Memory
 {
     public class MemoryUsageGauge : PrometheusMetric
     {

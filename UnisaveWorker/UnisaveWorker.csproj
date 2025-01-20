@@ -64,6 +64,7 @@
         <Compile Include="Concurrency\LimitedConcurrencyTaskScheduler.cs" />
         <Compile Include="Concurrency\RequestConcurrencyMiddleware.cs" />
         <Compile Include="Concurrency\ThreadConcurrencyMiddleware.cs" />
+        <Compile Include="Config.cs" />
         <Compile Include="Execution\LegacyEntrypointExecutionMiddleware.cs" />
         <Compile Include="Execution\OwinStartupExecutionMiddleware.cs" />
         <Compile Include="Ingress\AccessLoggingMiddleware.cs" />
@@ -80,6 +81,17 @@
         <Compile Include="Initialization\RecipeParsingException.cs" />
         <Compile Include="Initialization\RecipeV1.cs" />
         <Compile Include="Initialization\RecipeV1Initializer.cs" />
+        <Compile Include="Log.cs" />
+        <Compile Include="Metrics\Cpu\CpuUsageCounter.cs" />
+        <Compile Include="Metrics\Cpu\CpuUtilizationGauge.cs" />
+        <Compile Include="Metrics\Cpu\CpuUtilizationTracker.cs" />
+        <Compile Include="Metrics\Memory\GcMemoryGauge.cs" />
+        <Compile Include="Metrics\Memory\MemoryUsageGauge.cs" />
+        <Compile Include="Metrics\MetricsCounter.cs" />
+        <Compile Include="Metrics\MetricsManager.cs" />
+        <Compile Include="Metrics\Network\NetstatGauge.cs" />
+        <Compile Include="Metrics\Other\UptimeCounter.cs" />
+        <Compile Include="Metrics\PrometheusMetric.cs" />
         <Compile Include="OwinExtensions.cs" />
         <Compile Include="Program.cs"/>
         <Compile Include="Properties\AssemblyInfo.cs"/>
@@ -88,12 +100,6 @@
     </ItemGroup>
     <ItemGroup>
       <None Include="packages.config" />
-    </ItemGroup>
-    <ItemGroup>
-      <ProjectReference Include="..\Watchdog\Watchdog.csproj">
-        <Project>{3e963a7d-2931-40d8-b68c-3f7b127ecb2a}</Project>
-        <Name>Watchdog</Name>
-      </ProjectReference>
     </ItemGroup>
     <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets"/>
     <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

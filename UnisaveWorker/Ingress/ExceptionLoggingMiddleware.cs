@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using Microsoft.Owin;
-using Watchdog;
 
 namespace UnisaveWorker.Ingress
 {

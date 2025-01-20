@@ -1,6 +1,6 @@
 using System;
 
-namespace Watchdog
+namespace UnisaveWorker
 {
     /// <summary>
     /// Formats console logging

@@ -1,5 +1,4 @@
 ﻿using System.Reflection;
-using System.Runtime.CompilerServices;
 
 [assembly: AssemblyTitle("Unisave Worker")]
 [assembly: AssemblyDescription(
@@ -8,5 +7,5 @@ using System.Runtime.CompilerServices;
 [assembly: AssemblyCompany("Jiří Mayer")]
 [assembly: AssemblyProduct("Unisave Worker")]
 
-[assembly: AssemblyVersion("0.7.0.0")]
-[assembly: AssemblyInformationalVersion("0.7.0-dev")]
+[assembly: AssemblyVersion("1.0.0.0")]
+[assembly: AssemblyInformationalVersion("1.0.0-dev")]

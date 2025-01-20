@@ -2,7 +2,7 @@ using System;
 using System.IO;
 using System.Linq;
 
-namespace Watchdog.Metrics.Network
+namespace UnisaveWorker.Metrics.Network
 {
     public class NetstatGauge : PrometheusMetric
     {

@@ -1,6 +1,6 @@
 using System;
 
-namespace Watchdog.Metrics.Memory
+namespace UnisaveWorker.Metrics.Memory
 {
     public class GcMemoryGauge : PrometheusMetric
     {
