@@ -37,15 +37,16 @@ The list of environment variables for configuration has a separate [documentatio
     - [Error Codes and Meanings](docs/api-error-codes-and-meanings.md)
     - [Initialization](api-initialization.md)
     - [Game Backend](api-game-backend.md)
-- Code architecture
-- [Initialization](docs/initialization.md)
-- Metrics
-- Execution
-- [Unisave Environment Variables](docs/unisave-environment-variables.md)
+    - Metrics
+- [Code Architecture](docs/code-architecture.md)
 - [Concurrency](docs/concurrency.md)
+- [Initialization](docs/initialization.md)
+- [Unisave Environment Variables](docs/unisave-environment-variables.md)
 - [Custom OWIN Environment Keys](docs/custom-owin-environment-keys.md)
 - [Loading PDB files](docs/loading-pdb-files.md)
 - [Graceful Shutdown](docs/graceful-shutdown.md)
+- [Shared `Owin` and `Microsoft.Owin` DLLs](docs/shared-owin-and-ms-owin-ddls.md)
+- Metrics
 
 
 ## Testing
