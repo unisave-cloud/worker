@@ -75,6 +75,12 @@ namespace Watchdog
         /// </summary>
         public string OwinStartupAttribute { get; set; } = "UnisaveFramework";
         
+        /// <summary>
+        /// How many seconds at most should the worker wait for pending requests
+        /// when it's being terminated.
+        /// </summary>
+        public int GracefulShutdownSeconds { get; set; } = 10;
+        
         
         /////////////
         // Methods //
@@ -128,6 +134,10 @@ namespace Watchdog
                 OwinStartupAttribute = GetEnvString(
                     "WORKER_OWIN_STARTUP_ATTRIBUTE",
                     d.OwinStartupAttribute
+                ),
+                GracefulShutdownSeconds = GetEnvInteger(
+                    "WORKER_GRACEFUL_SHUTDOWN_SECONDS",
+                    d.GracefulShutdownSeconds
                 )
             };
         }

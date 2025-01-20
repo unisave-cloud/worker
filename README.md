@@ -41,6 +41,7 @@ The list of environment variables for configuration has a separate [documentatio
 - [Concurrency](docs/concurrency.md)
 - [Custom OWIN Environment Keys](docs/custom-owin-environment-keys.md)
 - [Loading PDB files](docs/loading-pdb-files.md)
+- [Graceful Shutdown](docs/graceful-shutdown.md)
 
 
 ## Testing

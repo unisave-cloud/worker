@@ -18,6 +18,8 @@ namespace UnisaveWorker
     public class Startup
     {
         private readonly Config config;
+        
+        private readonly GracefulShutdownManager shutdownManager;
         private readonly HealthStateManager healthStateManager;
         private readonly MetricsManager metricsManager;
         private readonly Initializer initializer;
@@ -25,6 +27,7 @@ namespace UnisaveWorker
 
         public Startup(
             Config config,
+            GracefulShutdownManager shutdownManager,
             HealthStateManager healthStateManager,
             MetricsManager metricsManager,
             Initializer initializer
@@ -34,6 +37,7 @@ namespace UnisaveWorker
             this.healthStateManager = healthStateManager;
             this.metricsManager = metricsManager;
             this.initializer = initializer;
+            this.shutdownManager = shutdownManager;
             this.backendLoader = initializer.BackendLoader;
         }
 
@@ -41,6 +45,9 @@ namespace UnisaveWorker
         {
             // catches uncaught exceptions and logs them
             appBuilder.Use<ExceptionLoggingMiddleware>();
+
+            // implements a graceful shutdown period
+            appBuilder.Use<GracefulShutdownMiddleware>(shutdownManager);
 
             // handle unisave requests
             appBuilder.MapWhen(

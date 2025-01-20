@@ -49,6 +49,7 @@
         </Reference>
     </ItemGroup>
     <ItemGroup>
+        <Compile Include="GracefulShutdownManagerTest.cs" />
         <Compile Include="InitializerTest.cs" />
         <Compile Include="RequestConcurrencyMiddlewareTest.cs" />
         <Compile Include="Properties\AssemblyInfo.cs"/>

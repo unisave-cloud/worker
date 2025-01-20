@@ -131,7 +131,7 @@ namespace WorkerTests
                 );
             }
             
-            // wait for all of the tasks to hit the barrier
+            // wait for all the tasks to hit the barrier
             while (currentAsyncConcurrency < requestTasks.Count)
                 await Task.Yield();
             

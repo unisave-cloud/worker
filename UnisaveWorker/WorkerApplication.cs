@@ -1,16 +1,23 @@
 using System;
 using System.Net.Http;
+using System.Threading;
 using Microsoft.Owin.Hosting;
+using UnisaveWorker.Ingress;
 using UnisaveWorker.Initialization;
 using Watchdog;
 using Watchdog.Metrics;
 
 namespace UnisaveWorker
 {
+    /// <summary>
+    /// Represents the whole Unisave Worker Application,
+    /// this class handles service construction, lifetime, and their composition
+    /// </summary>
     public class WorkerApplication : IDisposable
     {
         private readonly Config config;
 
+        private readonly GracefulShutdownManager shutdownManager;
         private readonly HealthStateManager healthStateManager;
         private readonly MetricsManager metricsManager;
         private readonly HttpClient httpClient;
@@ -22,7 +29,7 @@ namespace UnisaveWorker
         {
             this.config = config;
             
-            // TODO: construct all services
+            shutdownManager = new GracefulShutdownManager();
             healthStateManager = new HealthStateManager();
             metricsManager = new MetricsManager(config);
             httpClient = new HttpClient();
@@ -34,13 +41,11 @@ namespace UnisaveWorker
         
         public void Start()
         {
-            // PrintStartupMessage();
+            // TODO: PrintStartupMessage();
             
             // initialize services
             healthStateManager.Initialize();
             initializer.AttemptEagerInitialization();
-            // executionKernel.Initialize();
-            // requestConsumer.Initialize();
             
             // then start the HTTP server
             StartHttpServer();
@@ -53,6 +58,7 @@ namespace UnisaveWorker
             // pass services into the HTTP router
             var startup = new Startup(
                 config,
+                shutdownManager,
                 healthStateManager,
                 metricsManager,
                 initializer
@@ -64,30 +70,31 @@ namespace UnisaveWorker
         }
         
         /// <summary>
-        /// Stop the server
+        /// Waits for pending requests to finish, meanwhile rejects new requests
         /// </summary>
         public void Stop()
         {
             Log.Info("Stopping Unisave Worker...");
             
-            // stop the HTTP server first
-            httpServer?.Dispose();
+            // wait for pending requests to finish
+            // with a maximum timeout
+            shutdownManager.PerformGracefulShutdown(
+                TimeSpan.FromSeconds(config.GracefulShutdownSeconds)
+            );
             
-            // then dispose services
-            // requestConsumer?.Dispose();
-            // executionKernel?.Dispose();
-            // requestQueue?.Dispose();
+            // stop the HTTP server
+            httpServer?.Dispose();
+            Log.Info("HTTP server stopped.");
+        }
+        
+        public void Dispose()
+        {
             initializer.Dispose();
             metricsManager.Dispose();
             httpClient.Dispose();
             healthStateManager.Dispose();
             
             Log.Info("Bye.");
-        }
-        
-        public void Dispose()
-        {
-            Stop();
         }
     }
 }

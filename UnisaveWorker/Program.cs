@@ -16,6 +16,8 @@ namespace UnisaveWorker
                 app.Start();
                 
                 WaitForTermination();
+
+                app.Stop();
             }
             
             // if there was an execution timeout
