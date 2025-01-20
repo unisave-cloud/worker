@@ -53,14 +53,14 @@ namespace WorkerTests
         {
             bool wasInvoked = false;
             
-            var waitForStartTcs = new TaskCompletionSource<object>();
+            var waitForStartTcs = new TaskCompletionSource<bool>();
             var initializer = new DummyInitializer(
                 (url, ct) =>
                 {
                     Assert.AreEqual("http://recipe.url", url);
                     Assert.IsFalse(ct.IsCancellationRequested);
                     wasInvoked = true;
-                    waitForStartTcs.SetResult(null);
+                    waitForStartTcs.SetResult(true);
                     return Task.CompletedTask;
                 }
             );
@@ -72,23 +72,30 @@ namespace WorkerTests
         }
         
         [Test]
-        public void ItCreatesBackendFolderBeforeInitialization()
+        public async Task ItCreatesBackendFolderBeforeInitialization()
         {
+            var doneTcs = new TaskCompletionSource<bool>();
+            
             var initializer = new DummyInitializer(
                 (url, ct) =>
                 {
                     Assert.IsTrue(Directory.Exists(BackendFolderPath));
                     Assert.IsEmpty(Directory.GetDirectories(BackendFolderPath));
                     Assert.IsEmpty(Directory.GetFiles(BackendFolderPath));
+                    doneTcs.SetResult(true);
                     return Task.CompletedTask;
                 }
             );
             initializer.TriggerInitializationIfNotRunning("http://recipe.url");
+            
+            await doneTcs.Task;
         }
         
         [Test]
-        public void ItClearsBackendFolderBeforeInitialization()
+        public async Task ItClearsBackendFolderBeforeInitialization()
         {
+            var doneTcs = new TaskCompletionSource<bool>();
+            
             // create some mess
             Directory.CreateDirectory(BackendFolderPath);
             string fooFilePath = Path.Combine(BackendFolderPath, "foo.cs");
@@ -100,10 +107,13 @@ namespace WorkerTests
                 {
                     Assert.IsTrue(Directory.Exists(BackendFolderPath));
                     Assert.IsFalse(File.Exists(fooFilePath));
+                    doneTcs.SetResult(true);
                     return Task.CompletedTask;
                 }
             );
             initializer.TriggerInitializationIfNotRunning("http://recipe.url");
+            
+            await doneTcs.Task;
         }
 
         [Test]
@@ -123,7 +133,7 @@ namespace WorkerTests
         [Test]
         public void YouCanWaitForInitializationToComplete()
         {
-            var tcs = new TaskCompletionSource<object>();
+            var tcs = new TaskCompletionSource<bool>();
             var initializer = new DummyInitializer(
                 (url, ct) => tcs.Task
             );
@@ -139,7 +149,7 @@ namespace WorkerTests
             Assert.IsFalse(waitingTask.IsCompleted);
             
             // finish waiting
-            tcs.SetResult(null);
+            tcs.SetResult(true);
             waitingTask.Wait(1000);
             
             Assert.IsTrue(waitingTask.IsCompleted);
@@ -148,7 +158,7 @@ namespace WorkerTests
         [Test]
         public void WaitingForInitializationCanBeCancelled()
         {
-            var tcs = new TaskCompletionSource<object>();
+            var tcs = new TaskCompletionSource<bool>();
             var initializer = new DummyInitializer(
                 (url, ct) => tcs.Task
             );
@@ -196,7 +206,7 @@ namespace WorkerTests
         public async Task TriggeringInitializationWhenInitializingDoesNothing()
         {
             int callCount = 0;
-            var tcs = new TaskCompletionSource<object>();
+            var tcs = new TaskCompletionSource<bool>();
             var initializer = new DummyInitializer(
                 (url, ct) => {
                     callCount++;
@@ -214,7 +224,7 @@ namespace WorkerTests
             });
 
             // and once initialization finishes, it was invoked only once
-            tcs.SetResult(null);
+            tcs.SetResult(true);
             await initializer.WaitForFinishedInitialization(
                 CancellationToken.None
             );
@@ -252,7 +262,7 @@ namespace WorkerTests
         [Test]
         public void WaitingFailedInitializationShouldThrow()
         {
-            var tcs = new TaskCompletionSource<object>();
+            var tcs = new TaskCompletionSource<bool>();
             var initializer = new DummyInitializer(
                 async (url, ct) => {
                     await tcs.Task;
@@ -265,7 +275,7 @@ namespace WorkerTests
             );
             
             // fail the initialization
-            tcs.SetResult(null);
+            tcs.SetResult(true);
 
             Assert.ThrowsAsync<InitializationFailedException>(async () => {
                 await waitingTask;
@@ -275,7 +285,7 @@ namespace WorkerTests
         [Test]
         public void AfterFailedInitializationIsUninitialized()
         {
-            var tcs = new TaskCompletionSource<object>();
+            var tcs = new TaskCompletionSource<bool>();
             var initializer = new DummyInitializer(
                 async (url, ct) => {
                     await tcs.Task;
@@ -286,7 +296,7 @@ namespace WorkerTests
             Task waitingTask = initializer.WaitForFinishedInitialization(
                 CancellationToken.None
             );
-            tcs.SetResult(null);
+            tcs.SetResult(true);
             waitingTask.ContinueWith(_ => { }).Wait();
             // NOTE: ContinueWith here swallows the exception
             
@@ -302,12 +312,12 @@ namespace WorkerTests
         [Test]
         public async Task InitializationCanBeCancelled()
         {
-            var tcs = new TaskCompletionSource<object>();
-            var waitForStartTcs = new TaskCompletionSource<object>();
+            var tcs = new TaskCompletionSource<bool>();
+            var waitForStartTcs = new TaskCompletionSource<bool>();
             var initializer = new DummyInitializer(
                 async (url, ct) => {
                     Assert.IsFalse(ct.IsCancellationRequested);
-                    waitForStartTcs.SetResult(null);
+                    waitForStartTcs.SetResult(true);
                     await tcs.Task;
                     Assert.IsTrue(ct.IsCancellationRequested);
                     ct.ThrowIfCancellationRequested();
@@ -325,7 +335,7 @@ namespace WorkerTests
             );
             
             // let the initialization action complete
-            tcs.SetResult(null);
+            tcs.SetResult(true);
 
             bool cancelledException = false;
             try
@@ -347,12 +357,12 @@ namespace WorkerTests
         [Test]
         public async Task InitializationStatePropertyUpdatesProperly()
         {
-            var tcs = new TaskCompletionSource<object>();
-            var waitForStartTcs = new TaskCompletionSource<object>();
+            var tcs = new TaskCompletionSource<bool>();
+            var waitForStartTcs = new TaskCompletionSource<bool>();
             var initializer = new DummyInitializer(
                 async (url, ct) =>
                 {
-                    waitForStartTcs.SetResult(null);
+                    waitForStartTcs.SetResult(true);
                     await tcs.Task;
                 }
             );
@@ -364,7 +374,7 @@ namespace WorkerTests
             
             Assert.AreEqual(InitializationState.BeingInitialized, initializer.State);
             
-            tcs.SetResult(null);
+            tcs.SetResult(true);
             await initializer.WaitForFinishedInitialization(CancellationToken.None);
             
             Assert.AreEqual(InitializationState.Initialized, initializer.State);

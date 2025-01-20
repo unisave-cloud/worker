@@ -127,7 +127,7 @@ namespace UnisaveWorker.Concurrency
             }
             catch (QueueIsFullException)
             {
-                await RespondWith429QueueIsFull(environment);
+                await RespondWith429QueueIsFull(context);
                 return;
             }
 
@@ -197,12 +197,8 @@ namespace UnisaveWorker.Concurrency
             tcs.SetResult(null);
         }
 
-        private async Task RespondWith429QueueIsFull(
-            IDictionary<string, object> environment
-        )
+        private async Task RespondWith429QueueIsFull(IOwinContext context)
         {
-            var ctx = new OwinContext(environment);
-            
             // send the 429 response
             var body = new JsonObject {
                 ["error"] = true,
@@ -210,14 +206,14 @@ namespace UnisaveWorker.Concurrency
                 ["message"] = $"Worker queue in the " +
                               $"{nameof(RequestConcurrencyMiddleware)} is full."
             };
-            await ctx.SendResponse(
+            await context.SendResponse(
                 statusCode: 429,
                 body: body.ToString(),
                 contentType: "application/json"
             );
             
             // log a warning
-            environment.TryGetValue(
+            context.Environment.TryGetValue(
                 "worker.RequestIndex",
                 out object requestIndex
             );

@@ -11,6 +11,10 @@ namespace WorkerTests
     [TestFixture]
     public class RequestConcurrencyMiddlewareTest
     {
+        // OWIN environment
+        private readonly Dictionary<string, object> dummyRequest
+            = new Dictionary<string, object>();
+        
         [Test]
         public async Task ItLimitsConcurrency()
         {
@@ -58,7 +62,7 @@ namespace WorkerTests
             for (int i = 0; i < 30; i++)
             {
                 requestTasks.Add(
-                    Task.Run(() => middleware.Invoke(null))
+                    Task.Run(() => middleware.Invoke(dummyRequest))
                 );
             }
             
@@ -107,7 +111,7 @@ namespace WorkerTests
             for (int i = 0; i < 60; i++)
             {
                 requestTasks.Add(
-                    Task.Run(() => middleware.Invoke(null))
+                    Task.Run(() => middleware.Invoke(dummyRequest))
                 );
             }
             
