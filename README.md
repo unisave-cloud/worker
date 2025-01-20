@@ -75,4 +75,10 @@ Push the container to the DigitalOcean registry:
 make push
 ```
 
+If the DigitalOcean registry authentication expires, run:
+
+```bash
+doctl registry login
+```
+
 Update the worker version in the `deployment` repository and run the `ingrade` to update the kubernetes deployment (minikube or production).

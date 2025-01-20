@@ -1,5 +1,5 @@
-VERSION=$$(grep -oP "AssemblyInformationalVersion\(\"\K[^\"]+" Watchdog/Properties/AssemblyInfo.cs)
-TAG=registry.digitalocean.com/unisave/unisave-watchdog:$(VERSION)
+VERSION=$$(grep -oP "AssemblyInformationalVersion\(\"\K[^\"]+" UnisaveWorker/Properties/AssemblyInfo.cs)
+TAG=registry.digitalocean.com/unisave/unisave-worker:$(VERSION)
 
 .PHONY: build push run run-sh
 
@@ -11,11 +11,9 @@ push:
 
 run:
 	docker run --rm -it -p 8080:8080 \
-	-e WATCHDOG_DUMMY_INITIALIZATION=true \
-	-e REQUEST_TIMEOUT_SECONDS=3 \
-	--memory 250m \
-	--cpus 0.25 \
+		--memory 250m \
+		--cpus 0.25 \
 	$(TAG)
 
 run-sh:
-	docker run --rm -it --entrypoint bash $(TAG)
+	@docker run --rm -it --entrypoint bash $(TAG)

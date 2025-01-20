@@ -2,14 +2,13 @@
 # BUILDING #
 ############
 
-FROM mono:6.12.0 as builder
+FROM mono:6.12.0 AS builder
 
-RUN mkdir -p /watchdog-build
-COPY ./ /watchdog-build
+RUN mkdir -p /worker-build
+COPY ./ /worker-build
 
-RUN msbuild -target:Rebuild -property:Configuration=Release /watchdog-build/Watchdog/Watchdog.csproj
-RUN msbuild -target:Rebuild -property:Configuration=Release /watchdog-build/DummyFramework/DummyFramework.csproj
-RUN msbuild -target:Rebuild -property:Configuration=Release /watchdog-build/DummyGame/DummyGame.csproj
+RUN msbuild -target:Rebuild -property:Configuration=Release /worker-build/UnisaveWorker/UnisaveWorker.csproj
+
 
 ###########
 # RUNNING #
@@ -31,24 +30,18 @@ RUN ls /etc/ssl/certs/ \
     && cert-sync /root/certs-tmp.crt \
     && rm /root/certs-tmp.crt
 
-# watchdog folder
-RUN mkdir -p /watchdog
-COPY --from=builder /watchdog-build/Watchdog/bin/Release /watchdog
-
-# dummy initialization folder
-RUN mkdir -p /dummy
-COPY --from=builder /watchdog-build/DummyFramework/bin/Release /dummy
-COPY --from=builder /watchdog-build/DummyGame/bin/Release /dummy
+# worker folder
+RUN mkdir -p /worker
+COPY --from=builder /worker-build/UnisaveWorker/bin/Release /worker
 
 # game folder
-# (part of the tmp folder, since the function will run with read-only filesystem)
 RUN mkdir -p /game
 
 # user
-RUN groupadd -g 1000 watchdog_group && \
-    useradd -u 1000 -m -s /bin/bash -g watchdog_group watchdog_user
-RUN chown watchdog_user /game
-USER watchdog_user
+RUN groupadd -g 1000 worker_group && \
+    useradd -u 1000 -m -s /bin/bash -g worker_group worker_user
+RUN chown worker_user /game
+USER worker_user
 
 # workdir
 WORKDIR /game
@@ -60,5 +53,5 @@ ENV WORKER_HTTP_URL=http://*:8080
 EXPOSE 8080
 
 # entrypoint
-ENTRYPOINT ["mono", "--debug", "/watchdog/Watchdog.exe"]
+ENTRYPOINT ["mono", "--debug", "/worker/UnisaveWorker.exe"]
 CMD []
