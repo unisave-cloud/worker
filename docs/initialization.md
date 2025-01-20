@@ -25,7 +25,7 @@ During worker initialization, if this folder already exists, it gets deleted. Th
 
 When the initialization did not even start yet, the worker should reject requests. But this actually never happens, as the worker has always the lazy initialization on. So when such a request arrives, it immediately starts lazy initialization.
 
-If the incomming request does not have the header, it responds with `409 - Missing initialization recipe`. See the [Requests API documentation](./api-requests.md) for more.
+If the incomming request does not have the header, it responds with `409 - Missing initialization recipe`. See the [error codes documentation](./api-error-codes-and-meanings.md) for more.
 
 Once the initialization is ongoing, requests are paused until it finishes. There is no queue or limit, the limitting is performed a step earlier in the request concurrency middleware (see [Concurrency](./concurrency.md) documentation page). This waiting should respect the OWIN request `CancellationToken`.
 
@@ -34,7 +34,7 @@ Once initialization finishes, requests are sent further in the processing pipeli
 
 ## Errors during initialization
 
-If the initialization fails (it can, it's just an async method, it can throw or timeout due to network issues), all waiting requests are rejected with `503 - Worker initialization failed`. See the [Requests API documentation](./api-requests.md) for more. Then the worker is set back into the uninitialized state, and the very next request to come will trigger the lazy initialization process again. This is on purpose to automatically recover from network outages.
+If the initialization fails (it can, it's just an async method, it can throw or timeout due to network issues), all waiting requests are rejected with `503 - Worker initialization failed`. See the [error codes documentation](./api-error-codes-and-meanings.md) for more. Then the worker is set back into the uninitialized state, and the very next request to come will trigger the lazy initialization process again. This is on purpose to automatically recover from network outages.
 
 
 ## Code structure

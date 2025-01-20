@@ -87,48 +87,33 @@ namespace UnisaveWorker.Initialization
             await next(environment);
         }
 
+        private async Task RespondWith409MissingRecipeUrl(IOwinContext ctx)
+        {
+            await ctx.SendError(
+                statusCode: 409,
+                errorNumber: 3000,
+                "Worker is not initialized and no " +
+                "initialization URL was provided with " +
+                "the request.."
+            );
+        }
+
         private async Task RespondWith503InitializationFailed(IOwinContext ctx)
         {
-            var body = new JsonObject {
-                ["error"] = true,
-                ["code"] = 503,
-                ["message"] = "Worker initialization failed."
-            };
-            await ctx.SendResponse(
+            await ctx.SendError(
                 statusCode: 503,
-                body: body.ToString(),
-                contentType: "application/json"
+                errorNumber: 3001,
+                "Worker initialization failed."
             );
         }
 
         private async Task RespondWith503InitializationCancelled(IOwinContext ctx)
         {
-            var body = new JsonObject {
-                ["error"] = true,
-                ["code"] = 503,
-                ["message"] = "Worker initialization was cancelled, " +
-                              "the worker is probably shutting down."
-            };
-            await ctx.SendResponse(
+            await ctx.SendError(
                 statusCode: 503,
-                body: body.ToString(),
-                contentType: "application/json"
-            );
-        }
-
-        private async Task RespondWith409MissingRecipeUrl(IOwinContext ctx)
-        {
-            var body = new JsonObject {
-                ["error"] = true,
-                ["code"] = 409,
-                ["message"] = "Worker is not initialized and no " +
-                              "initialization URL was provided with " +
-                              "the request.."
-            };
-            await ctx.SendResponse(
-                statusCode: 409,
-                body: body.ToString(),
-                contentType: "application/json"
+                errorNumber: 3002,
+                "Worker initialization was cancelled, " +
+                "the worker is probably shutting down."
             );
         }
     }

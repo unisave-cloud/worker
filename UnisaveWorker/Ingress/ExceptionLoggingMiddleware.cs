@@ -37,7 +37,7 @@ namespace UnisaveWorker.Ingress
                 try
                 {
                     LogException(ex);
-                    RespondWith500(new OwinContext(environment));
+                    await RespondWith500(new OwinContext(environment));
                     return;
                 }
                 catch (Exception)
@@ -54,10 +54,24 @@ namespace UnisaveWorker.Ingress
             Log.Error("Unhandled worker exception: " + ex);
         }
 
-        private void RespondWith500(IOwinContext context)
+        private async Task RespondWith500(IOwinContext context)
         {
-            context.Response.StatusCode = 500;
-            context.Response.Body.Close();
+            try
+            {
+                await context.SendError(
+                    statusCode: 500,
+                    errorNumber: 1,
+                    $"Unhandled worker exception. See worker logs."
+                );
+            }
+            catch
+            {
+                // This probably happens because we cannot send a response,
+                // since the original exception happened in the middle of
+                // a response being sent. So try 500 and just close the stream.
+                context.Response.StatusCode = 500;
+                context.Response.Body.Close();
+            }
         }
     }
 }

@@ -1,12 +1,29 @@
 using System;
+using System.Json;
 using System.Threading.Tasks;
 using Microsoft.Owin;
 using Owin;
 
 namespace UnisaveWorker
 {
+    /// <summary>
+    /// Custom extension methods for OWIN
+    /// </summary>
     public static class OwinExtensions
     {
+        /// <summary>
+        /// A helper method to define simple HTTP routes based on HTTP path
+        /// </summary>
+        /// <param name="appBuilder"></param>
+        /// <param name="method">
+        /// HTTP method to match, e.g. "GET" or "POST"
+        /// </param>
+        /// <param name="route">
+        /// What path to match *exactly*, e.g. "/foo" or "/"
+        /// </param>
+        /// <param name="handler">
+        /// Async function that accepts the OWIN context and handles the request
+        /// </param>
         public static void Route(
             this IAppBuilder appBuilder,
             string method,
@@ -21,6 +38,23 @@ namespace UnisaveWorker
             );
         }
 
+        /// <summary>
+        /// Sends a fixed-size HTTP response with an optional string body
+        /// </summary>
+        /// <param name="context">
+        /// The OWIN context of the request
+        /// </param>
+        /// <param name="statusCode">
+        /// HTTP status code, defaults to 200
+        /// </param>
+        /// <param name="body">
+        /// Optional response body (will be UTF-8 encoded),
+        /// null means no response body will be sent.
+        /// </param>
+        /// <param name="contentType">
+        /// Content-Type header value, e.g. "text/plain" or "application/json".
+        /// Defaults to plain text.
+        /// </param>
         public static async Task SendResponse(
             this IOwinContext context,
             int statusCode = 200,
@@ -41,6 +75,48 @@ namespace UnisaveWorker
                     = body.Length.ToString();
                 await context.Response.WriteAsync(body);
             }
+        }
+
+        /// <summary>
+        /// Formats a "Worker Error" HTTP response.
+        /// See the documentation on "Error codes and meanings" to learn more.
+        /// </summary>
+        /// <param name="context">
+        /// The OWIN context of the request
+        /// </param>
+        /// <param name="statusCode">
+        /// HTTP Status code of the response
+        /// </param>
+        /// <param name="errorNumber">
+        /// Worker-specific error number
+        /// </param>
+        /// <param name="errorMessage">
+        /// Human-readable error message
+        /// </param>
+        public static async Task SendError(
+            this IOwinContext context,
+            int statusCode,
+            int errorNumber,
+            string errorMessage
+        )
+        {
+            // headers
+            context.Response.Headers.Set("X-Unisave-Worker-Error", "true");
+            
+            // body
+            var body = new JsonObject {
+                ["statusCode"] = statusCode,
+                ["error"] = true,
+                ["errorNumber"] = errorNumber,
+                ["errorMessage"] = errorMessage
+            };
+            
+            // send
+            await context.SendResponse(
+                statusCode: statusCode,
+                body: body.ToString(),
+                contentType: "application/json"
+            );
         }
     }
 }

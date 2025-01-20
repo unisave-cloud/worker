@@ -38,9 +38,12 @@ namespace UnisaveWorker
 
         public void Configuration(IAppBuilder appBuilder)
         {
+            // sets the "Server" response header
+            appBuilder.Use<ServerResponseHeaderMiddleware>();
+            
             // catches uncaught exceptions and logs them
             appBuilder.Use<ExceptionLoggingMiddleware>();
-
+            
             // implements a graceful shutdown period
             appBuilder.Use<GracefulShutdownMiddleware>(shutdownManager);
 

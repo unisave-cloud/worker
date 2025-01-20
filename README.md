@@ -33,6 +33,10 @@ The list of environment variables for configuration has a separate [documentatio
 
 - [Configuration](docs/configuration.md)
 - [External APIs](docs/external-apis.md)
+    - [Unisave Requests](docs/api-unisave-requests.md)
+    - [Error Codes and Meanings](docs/api-error-codes-and-meanings.md)
+    - [Initialization](api-initialization.md)
+    - [Game Backend](api-game-backend.md)
 - Code architecture
 - [Initialization](docs/initialization.md)
 - Metrics

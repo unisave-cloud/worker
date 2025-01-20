@@ -7,7 +7,6 @@ List of things to add, specify, or fix.
 
 - [ ] Measure memory leakage during long running.
 - [ ] Implement aging so that workers get restarted when they reach a certain age and therefore get rid of memory leaks.
-- [ ] Formalize error codes and responses and document them like ArangoDB has. Sections could be: general, concurrency, initialization, etc...
 
 
 ## APIs

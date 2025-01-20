@@ -72,6 +72,7 @@
         <Compile Include="Ingress\GracefulShutdownManager.cs" />
         <Compile Include="Ingress\GracefulShutdownMiddleware.cs" />
         <Compile Include="Ingress\LegacyApiTranslationMiddleware.cs" />
+        <Compile Include="Ingress\ServerResponseHeaderMiddleware.cs" />
         <Compile Include="Initialization\BackendLoader.cs" />
         <Compile Include="Initialization\BackendNotLoadedException.cs" />
         <Compile Include="Initialization\InitializationFailedException.cs" />

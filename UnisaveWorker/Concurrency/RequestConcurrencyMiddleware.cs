@@ -198,17 +198,12 @@ namespace UnisaveWorker.Concurrency
 
         private async Task RespondWith429QueueIsFull(IOwinContext context)
         {
-            // send the 429 response
-            var body = new JsonObject {
-                ["error"] = true,
-                ["code"] = 429,
-                ["message"] = $"Worker queue in the " +
-                              $"{nameof(RequestConcurrencyMiddleware)} is full."
-            };
-            await context.SendResponse(
+            // send error response
+            await context.SendError(
                 statusCode: 429,
-                body: body.ToString(),
-                contentType: "application/json"
+                errorNumber: 2000,
+                $"Worker queue in the {nameof(RequestConcurrencyMiddleware)} " +
+                $"is full."
             );
             
             // log a warning

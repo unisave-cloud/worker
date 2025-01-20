@@ -47,15 +47,10 @@ namespace UnisaveWorker.Ingress
         
         private async Task RespondWith503ShuttingDown(IOwinContext context)
         {
-            var body = new JsonObject {
-                ["error"] = true,
-                ["code"] = 503,
-                ["message"] = $"Worker is shutting down."
-            };
-            await context.SendResponse(
+            await context.SendError(
                 statusCode: 503,
-                body: body.ToString(),
-                contentType: "application/json"
+                errorNumber: 1000,
+                $"Worker is shutting down."
             );
         }
     }
