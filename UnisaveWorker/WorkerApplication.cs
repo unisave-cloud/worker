@@ -1,6 +1,7 @@
 using System;
+using System.Diagnostics;
 using System.Net.Http;
-using System.Threading;
+using System.Reflection;
 using Microsoft.Owin.Hosting;
 using UnisaveWorker.Ingress;
 using UnisaveWorker.Initialization;
@@ -41,7 +42,7 @@ namespace UnisaveWorker
         
         public void Start()
         {
-            // TODO: PrintStartupMessage();
+            PrintStartupMessage();
             
             // initialize services
             healthStateManager.Initialize();
@@ -51,6 +52,17 @@ namespace UnisaveWorker
             StartHttpServer();
             
             Log.Info("Unisave Worker running.");
+        }
+        
+        private void PrintStartupMessage()
+        {
+            string version = typeof(WorkerApplication).Assembly
+                .GetCustomAttribute<AssemblyInformationalVersionAttribute>()
+                .InformationalVersion;
+            
+            Log.Info($"Starting Unisave Worker {version} ...");
+            Log.Info($"Listening on port: {config.Port}");
+            Log.Info("Process ID: " + Process.GetCurrentProcess().Id);
         }
 
         private void StartHttpServer()
