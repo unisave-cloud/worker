@@ -37,12 +37,24 @@ namespace UnisaveWorker.Ingress
             context.Response.Body = fakeResponseStream;
             
             await next(environment);
-            
-            await TranslateResponse(
-                context,
-                actualResponseStream,
-                fakeResponseStream
-            );
+
+            if (context.Response.StatusCode == 200)
+            {
+                await TranslateResponse(
+                    context,
+                    actualResponseStream,
+                    fakeResponseStream
+                );
+            }
+            else
+            {
+                // e.g. all worker error responses
+                CopyUnknownResponseOver(
+                    context,
+                    actualResponseStream,
+                    fakeResponseStream
+                );
+            }
         }
 
         private async Task TranslateRequest(IOwinContext context)
@@ -207,6 +219,20 @@ namespace UnisaveWorker.Ingress
             }
 
             return env;
+        }
+
+        private void CopyUnknownResponseOver(
+            IOwinContext context,
+            Stream actualResponseStream,
+            MemoryStream fakeResponseStream
+        )
+        {
+            // return the original stream into the response object
+            context.Response.Body = actualResponseStream;
+            
+            // write the fake stream contents into the actual response stream
+            fakeResponseStream.WriteTo(actualResponseStream);
+            actualResponseStream.Close();
         }
     }
 }
