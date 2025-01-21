@@ -82,7 +82,6 @@ namespace UnisaveWorker
                 await context.Response.WriteAsync(body);
             }
             catch (IOException e)
-                when (e.InnerException is ObjectDisposedException)
             {
                 string requestPath = context.Request.Path.ToString();
                 bool callCancelled = context.Request.CallCancelled
