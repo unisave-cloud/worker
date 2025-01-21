@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Json;
 using System.Threading.Tasks;
 using Microsoft.Owin;
@@ -65,15 +66,33 @@ namespace UnisaveWorker
             context.Response.ContentType = contentType;
             context.Response.StatusCode = statusCode;
 
+            // send body-less response
             if (body == null)
             {
                 context.Response.Body.Close();
+                return;
             }
-            else
+            
+            // send response with body
+            context.Response.Headers["Content-Length"]
+                = body.Length.ToString();
+
+            try
             {
-                context.Response.Headers["Content-Length"]
-                    = body.Length.ToString();
                 await context.Response.WriteAsync(body);
+            }
+            catch (IOException e)
+                when (e.InnerException is ObjectDisposedException)
+            {
+                string requestPath = context.Request.Path.ToString();
+                bool callCancelled = context.Request.CallCancelled
+                    .IsCancellationRequested;
+                
+                Log.Warning(
+                    $"Response for '{requestPath}' was not sent, " +
+                    $"client probably closed the connection. " +
+                    $"CallCancelled: {callCancelled}, Message: {e.Message}"
+                );
             }
         }
 
