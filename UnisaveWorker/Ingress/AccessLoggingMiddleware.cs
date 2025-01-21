@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Owin;
+using UnisaveWorker.Metrics;
 
 namespace UnisaveWorker.Ingress
 {
@@ -18,14 +19,20 @@ namespace UnisaveWorker.Ingress
     {
         private readonly AppFunc next;
 
+        private readonly MetricsManager metricsManager;
+
         /// <summary>
         /// Tracks handled request index
         /// </summary>
         private int nextRequestIndex = 0;
 
-        public AccessLoggingMiddleware(AppFunc next)
+        public AccessLoggingMiddleware(
+            AppFunc next,
+            MetricsManager metricsManager
+        )
         {
             this.next = next;
+            this.metricsManager = metricsManager;
         }
         
         public async Task Invoke(IDictionary<string, object> environment)
@@ -40,6 +47,7 @@ namespace UnisaveWorker.Ingress
                 = executionStopwatch.ElapsedMilliseconds / 1000.0;
             
             LogAccess(environment, executionStopwatch.ElapsedMilliseconds);
+            UpdateMetrics(environment, executionStopwatch.ElapsedMilliseconds);
         }
 
         private void AssignRequestIndex(IDictionary<string, object> environment)
@@ -68,6 +76,19 @@ namespace UnisaveWorker.Ingress
             // [2023-12-03 21:52:37] R1385 POST /MyFacet/Foo 200 138B 45ms
             Console.WriteLine(
                 $"[{now}] {id} {method} {path} {status} {bytesSent}B {milliseconds}ms"
+            );
+        }
+
+        private void UpdateMetrics(
+            IDictionary<string, object> environment,
+            long milliseconds
+        )
+        {
+            var ctx = new OwinContext(environment);
+            
+            metricsManager.RecordExecutionRequestFinished(
+                durationSeconds: milliseconds / 1000.0,
+                responseSizeBytes: ctx.Response.ContentLength ?? 0
             );
         }
     }

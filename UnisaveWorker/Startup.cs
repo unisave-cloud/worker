@@ -63,7 +63,7 @@ namespace UnisaveWorker
         {
             branch.Use<LegacyApiTranslationMiddleware>();
             
-            branch.Use<AccessLoggingMiddleware>();
+            branch.Use<AccessLoggingMiddleware>(metricsManager);
 
             branch.Use<ConcurrencyManagementMiddleware>(
                 new ConcurrencyManagementMiddleware.State(
