@@ -46,6 +46,7 @@ The list of environment variables for configuration has a separate [documentatio
 - [Loading PDB files](docs/loading-pdb-files.md)
 - [Graceful Shutdown](docs/graceful-shutdown.md)
 - [Shared `Owin` and `Microsoft.Owin` DLLs](docs/shared-owin-and-ms-owin-ddls.md)
+- [HTTP Request Cancellation](docs/http-request-cancellation.md)
 - Metrics
 
 

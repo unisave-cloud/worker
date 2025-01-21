@@ -67,7 +67,7 @@ namespace UnisaveWorker.Ingress
             string facetName = methodParameters["facetName"];
             string methodName = methodParameters["methodName"];
             JsonArray arguments = (JsonArray)methodParameters["arguments"];
-            string sessionId = methodParameters["sessionId"];
+            string? sessionId = methodParameters["sessionId"];
             
             // translate request
             context.Request.Method = "POST";
@@ -116,11 +116,20 @@ namespace UnisaveWorker.Ingress
                 ).ReadToEndAsync()
             );
             
+            // WARNING: Nulls in strings in System.Json are messed up.
+            // Converting (string?)null to JsonValue? creates an empty string,
+            // instead of (JsonValue?)null value.
+            JsonValue? newSessionIdAsJson = newSessionId == null
+                // ReSharper disable once RedundantCast
+                ? (JsonValue?)null // creates a true JSON null
+                // ReSharper disable once RedundantCast
+                : (JsonValue?)newSessionId; // values work, nulls breaks
+            
             // convert response to entrypoint result
             JsonObject result = new JsonObject() {
                 ["result"] = owinResponse["status"],
                 ["special"] = new JsonObject() {
-                    ["sessionId"] = newSessionId,
+                    ["sessionId"] = newSessionIdAsJson,
                     ["logs"] = owinResponse["logs"],
                     ["executionDuration"] = executionDuration as double? ?? 0.0
                 }
@@ -165,7 +174,7 @@ namespace UnisaveWorker.Ingress
 
             string? sessionId = sessionCookie?.Substring(prefix.Length);
 
-            if (sessionId == null)
+            if (string.IsNullOrEmpty(sessionId))
                 return null;
             
             return Uri.UnescapeDataString(sessionId);

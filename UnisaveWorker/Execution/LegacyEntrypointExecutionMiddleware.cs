@@ -73,6 +73,15 @@ namespace UnisaveWorker.Execution
                 throw new Exception("Invalid number of path segments.");
 
             string? sessionId = context.Request.Cookies["unisave_session_id"];
+            
+            // WARNING: Nulls in strings in System.Json are messed up.
+            // Converting (string?)null to JsonValue? creates an empty string,
+            // instead of (JsonValue?)null value.
+            JsonValue? sessionIdAsJson = sessionId == null
+                // ReSharper disable once RedundantCast
+                ? (JsonValue?)null // creates a true JSON null
+                // ReSharper disable once RedundantCast
+                : (JsonValue?)sessionId; // values work, nulls breaks
 
             using var streamReader = new StreamReader(
                 context.Request.Body,
@@ -91,7 +100,7 @@ namespace UnisaveWorker.Execution
                     ["facetName"] = pathSegments[1],
                     ["methodName"] = pathSegments[2],
                     ["arguments"] = requestBody["arguments"],
-                    ["sessionId"] = sessionId
+                    ["sessionId"] = sessionIdAsJson
                 }
             };
 
@@ -104,7 +113,7 @@ namespace UnisaveWorker.Execution
         )
         {
             string? newSessionId = executionResult["special"]["sessionId"];
-            if (newSessionId != null)
+            if (!string.IsNullOrEmpty(newSessionId))
             {
                 context.Response.Cookies.Append(
                     "unisave_session_id",
