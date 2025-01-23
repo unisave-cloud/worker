@@ -13,7 +13,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace UnisaveWorker.Concurrency
+namespace UnisaveWorker.Concurrency.Microsoft
 {
     /// <summary>
     /// Provides a task scheduler that ensures a maximum concurrency level while

@@ -5,12 +5,20 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace UnisaveWorker.Concurrency
+namespace UnisaveWorker.Concurrency.Loop
 {
     /// <summary>
-    /// Processes TPL tasks by a single thread only
+    /// Processes TPL tasks by a single thread only,
+    /// analogous to the javascript event loop.
+    ///
+    /// It must be disposed so that the loop thread is gracefully terminated.
+    /// 
+    /// The implementation is based upon the Microsoft's
+    /// LimitedConcurrencyLevelTaskScheduler taken from here:
+    /// https://github.com/ChadBurggraf/parallel-extensions-extras
+    /// /blob/master/TaskSchedulers/LimitedConcurrencyLevelTaskScheduler.cs
     /// </summary>
-    public class SingleThreadedScheduler : TaskScheduler, IDisposable
+    public class LoopScheduler : TaskScheduler, IDisposable
     {
         /// <summary>
         /// Gets the maximum concurrency level supported by this scheduler.
@@ -40,7 +48,7 @@ namespace UnisaveWorker.Concurrency
         /// </summary>
         private readonly CancellationTokenSource cts = new();
 
-        public SingleThreadedScheduler()
+        public LoopScheduler()
         {
             loopThread = new Thread(TheLoop);
             loopThread.Start();

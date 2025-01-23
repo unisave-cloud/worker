@@ -4,6 +4,7 @@ using System.Net.Http;
 using System.Reflection;
 using Microsoft.Owin.Hosting;
 using UnisaveWorker.Concurrency;
+using UnisaveWorker.Concurrency.Loop;
 using UnisaveWorker.Ingress;
 using UnisaveWorker.Initialization;
 using UnisaveWorker.Metrics;
@@ -22,7 +23,7 @@ namespace UnisaveWorker
         private readonly MetricsManager metricsManager;
         private readonly HttpClient httpClient;
         private readonly Initializer initializer;
-        private readonly SingleThreadedScheduler loopScheduler;
+        private readonly LoopScheduler loopScheduler;
 
         private IDisposable? httpServer;
         
@@ -40,7 +41,7 @@ namespace UnisaveWorker
                 httpClient,
                 config.OwinStartupAttribute
             );
-            loopScheduler = new SingleThreadedScheduler();
+            loopScheduler = new LoopScheduler();
         }
         
         public void Start()

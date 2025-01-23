@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Owin;
 
-namespace UnisaveWorker.Concurrency
+namespace UnisaveWorker.Concurrency.Loop
 {
     using AppFunc = Func<IDictionary<string, object>, Task>;
     
@@ -11,15 +11,15 @@ namespace UnisaveWorker.Concurrency
     /// Executes downstream OWIN pipeline in a single thread, allowing for
     /// single-threaded asynchronous concurrency
     /// </summary>
-    public class SingleThreadedMiddleware
+    public class LoopMiddleware
     {
         private readonly AppFunc next;
         
         private readonly TaskFactory taskFactory;
 
-        public SingleThreadedMiddleware(
+        public LoopMiddleware(
             AppFunc next,
-            SingleThreadedScheduler scheduler
+            LoopScheduler scheduler
         )
         {
             this.next = next;

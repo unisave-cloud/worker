@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Microsoft.Owin;
 using Owin;
 using UnisaveWorker.Concurrency;
+using UnisaveWorker.Concurrency.Loop;
 using UnisaveWorker.Execution;
 using UnisaveWorker.Ingress;
 using UnisaveWorker.Initialization;
@@ -21,14 +22,14 @@ namespace UnisaveWorker
         private readonly MetricsManager metricsManager;
         private readonly Initializer initializer;
         private readonly BackendLoader backendLoader;
-        private readonly SingleThreadedScheduler loopScheduler;
+        private readonly LoopScheduler loopScheduler;
 
         public Startup(
             Config config,
             GracefulShutdownManager shutdownManager,
             MetricsManager metricsManager,
             Initializer initializer,
-            SingleThreadedScheduler loopScheduler
+            LoopScheduler loopScheduler
         )
         {
             this.config = config;
