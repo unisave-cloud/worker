@@ -29,29 +29,35 @@ namespace UnisaveWorker.Concurrency.Loop
         /// The list of tasks to be executed.
         /// </summary>
         private readonly LinkedList<Task> tasks = new();
-        // protected by lock(tasks)
 
         /// <summary>
         /// The thread that does task processing
         /// </summary>
-        private readonly Thread loopThread;
+        private LoopThread? loopThread;
         
-        /// <summary>
-        /// The loop thread starts waiting on this if there are no tasks
-        /// to be processed. Signalling here wakes it up.
-        /// </summary>
-        private readonly ManualResetEvent waitHandle = new(initialState: false);
-        // state changes should happen in lock(tasks) to keep it synced with tasks
+        // protects tasks and the loop thread instance
+        private readonly object syncLock = new();
         
-        /// <summary>
-        /// Tripped during disposal to tell the loop thread to terminate
-        /// </summary>
-        private readonly CancellationTokenSource cts = new();
-
         public LoopScheduler()
         {
-            loopThread = new Thread(TheLoop);
-            loopThread.Start();
+            StartLoopThread();
+        }
+
+        private void StartLoopThread()
+        {
+            lock (syncLock)
+            {
+                if (loopThread != null)
+                    throw new InvalidOperationException(
+                        "There already is a loop thread."
+                    );
+                
+                loopThread = new LoopThread(
+                    tryPoppingTask: this.TryPoppingTask,
+                    tryExecuteTask: base.TryExecuteTask
+                );
+                loopThread.Start();
+            }
         }
 
         /// <summary>
@@ -59,14 +65,21 @@ namespace UnisaveWorker.Concurrency.Loop
         /// </summary>
         public void Dispose()
         {
-            // signal termination
-            cts.Cancel();
+            lock (syncLock)
+            {
+                // already disposed, do nothing
+                if (loopThread == null)
+                    return;
+                
+                // signal termination
+                loopThread.BreakTheLoop();
             
-            // wake up the loop thread
-            waitHandle.Set();
-            
-            // wait for the loop thread to finish
-            loopThread.Join();
+                // wait for the loop thread to finish
+                loopThread.Join();
+                
+                // we don't want to touch the thread anymore
+                loopThread = null;
+            }
         }
 
         /// <summary>
@@ -75,72 +88,39 @@ namespace UnisaveWorker.Concurrency.Loop
         /// <param name="task">The task to be queued.</param>
         protected sealed override void QueueTask(Task task)
         {
-            lock (tasks)
+            lock (syncLock)
             {
+                // check that we are booted up properly
+                if (loopThread == null)
+                    throw new InvalidOperationException(
+                        "There is no loop thread."
+                    );
+                
                 // add the task to the list of tasks to be processed
                 tasks.AddLast(task);
-                
-                // wake up the sleeping loop
-                // (here inside the lock to keep its state in sync with the list)
-                waitHandle.Set();
             }
-        }
-
-        /// <summary>
-        /// Implements the single-threaded task processing itself
-        /// </summary>
-        private void TheLoop()
-        {
-            try
-            {
-                // process tasks from the list
-                while (true)
-                {
-                    // check termination
-                    if (cts.Token.IsCancellationRequested)
-                        break;
-                    
-                    // try getting a task
-                    Task? item = TryPoppingTask();
-
-                    // execute the task
-                    if (item != null)
-                    {
-                        base.TryExecuteTask(item);
-                    }
-                    else // or wait for tasks to be added
-                    {
-                        // if someone added a task and signalled before now,
-                        // we just continue straight through this
-                        waitHandle.WaitOne();
-                    }
-                }
-            }
-            catch (Exception e) // catch unhandled exceptions
-            {
-                Log.Error(
-                    "Unhandled exception in the single-threaded loop: " + e
-                );
-
-                // kill the application
-                int exitCode = Marshal.GetHRForException(e);
-                Environment.Exit(exitCode);
-            }
+            
+            // wake up the (potentially) sleeping loop
+            loopThread.WakeUp();
         }
 
         /// <summary>
         /// Tries to pop a task from the list and if there are none,
         /// returns null
         /// </summary>
-        private Task? TryPoppingTask()
+        /// <param name="threadWaitHandle">
+        /// If there are no more tasks, the wait handle will be atomically
+        /// reset to blocking.
+        /// </param>
+        private Task? TryPoppingTask(ManualResetEvent threadWaitHandle)
         {
-            lock (tasks)
+            lock (syncLock)
             {
-                // there are none
+                // there are no tasks left
                 if (tasks.Count == 0)
                 {
-                    // sleep on the wait handle instead of looping for nothing
-                    waitHandle.Reset();
+                    // make the thread sleep instead of spinning
+                    threadWaitHandle.Reset();
                     return null;
                 }
 
@@ -164,9 +144,9 @@ namespace UnisaveWorker.Concurrency.Loop
             bool taskWasPreviouslyQueued
         )
         {
-            // we only consider inlining, if we are already running
-            // on the loop thread
-            if (Thread.CurrentThread != loopThread)
+            // we only consider inlining, if we are running
+            // in the loop thread
+            if (!LoopThread.ThisThreadIsLoopThread)
                 return false;
             
             // remove the task from the queue, since we've got to it
@@ -185,12 +165,8 @@ namespace UnisaveWorker.Concurrency.Loop
         /// <returns>Whether the task could be found and removed.</returns>
         protected sealed override bool TryDequeue(Task task)
         {
-            lock (tasks)
+            lock (syncLock)
             {
-                // NOTE: we don't need to care about the wait handle reset here,
-                // since it will be reset on failed queue pop anyways.
-                // It would save just a single pass through the loop.
-                
                 return tasks.Remove(task);
             }
         }
@@ -204,7 +180,7 @@ namespace UnisaveWorker.Concurrency.Loop
             bool lockTaken = false;
             try
             {
-                Monitor.TryEnter(tasks, ref lockTaken);
+                Monitor.TryEnter(syncLock, ref lockTaken);
                 if (lockTaken)
                     return tasks.ToArray();
                 else
@@ -213,7 +189,7 @@ namespace UnisaveWorker.Concurrency.Loop
             finally
             {
                 if (lockTaken)
-                    Monitor.Exit(tasks);
+                    Monitor.Exit(syncLock);
             }
         }
     }

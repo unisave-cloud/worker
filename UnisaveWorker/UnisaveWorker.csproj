@@ -63,6 +63,7 @@
         <Compile Include="Concurrency\ConcurrencyManagementMiddleware.cs" />
         <Compile Include="Concurrency\Loop\LoopMiddleware.cs" />
         <Compile Include="Concurrency\Loop\LoopScheduler.cs" />
+        <Compile Include="Concurrency\Loop\LoopThread.cs" />
         <Compile Include="Concurrency\Microsoft\LimitedConcurrencyTaskScheduler.cs" />
         <Compile Include="Concurrency\RequestConcurrencyMiddleware.cs" />
         <Compile Include="Concurrency\ThreadConcurrencyMiddleware.cs" />

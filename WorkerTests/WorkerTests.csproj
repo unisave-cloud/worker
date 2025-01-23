@@ -13,6 +13,8 @@
         <AssemblyName>WorkerTests</AssemblyName>
         <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
         <FileAlignment>512</FileAlignment>
+        <Nullable>enable</Nullable>
+        <LangVersion>9</LangVersion>
     </PropertyGroup>
     <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
         <PlatformTarget>AnyCPU</PlatformTarget>
@@ -51,6 +53,7 @@
     <ItemGroup>
         <Compile Include="GracefulShutdownManagerTest.cs" />
         <Compile Include="InitializerTest.cs" />
+        <Compile Include="LoopMiddlewareTest.cs" />
         <Compile Include="RequestConcurrencyMiddlewareTest.cs" />
         <Compile Include="Properties\AssemblyInfo.cs"/>
         <Compile Include="ThreadConcurrencyMiddlewareTest.cs" />
