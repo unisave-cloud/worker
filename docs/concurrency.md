@@ -4,7 +4,7 @@ Entrypoint into the worker is the [OwinHttpListener](https://github.com/evicerti
 
 It defines a queue of 1000 requests and limits on concurrently handled requests (see the source code). However this should not be the mechanism by which we limit the facet call concurrency (since the HTTP server is also used for metrics and diagnostics). But keep in mind that it introduces limits that may override the facet request limits, should they be set too generously.
 
-The rest of the worker is built with the assumption, that every incomming HTTP requests starts a new `Task` that gets placed into the default .NET thread pool. The default thread count (at least what I observed from unit tests) seems to be 10, although from stress tests it seems it gets increased if they are all utilized heavily. So we can roughly assume that each new request gets its own `Task` and likely also its own thread.
+The rest of the worker is built with the assumption, that every incomming HTTP request starts a new `Task` that gets placed into the default .NET thread pool. The default thread count (at least what I observed from unit tests) seems to be 10, although from stress tests it seems it gets increased if they are all utilized heavily. So we can roughly assume that each new request gets its own `Task` and likely also its own thread.
 
 > **TL;DR;** The worker OWIN HTTP server is multi-threaded and asynchronous with one `Task` for each request.
 

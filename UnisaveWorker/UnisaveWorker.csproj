@@ -63,6 +63,8 @@
         <Compile Include="Concurrency\ConcurrencyManagementMiddleware.cs" />
         <Compile Include="Concurrency\LimitedConcurrencyTaskScheduler.cs" />
         <Compile Include="Concurrency\RequestConcurrencyMiddleware.cs" />
+        <Compile Include="Concurrency\SingleThreadedMiddleware.cs" />
+        <Compile Include="Concurrency\SingleThreadedScheduler.cs" />
         <Compile Include="Concurrency\ThreadConcurrencyMiddleware.cs" />
         <Compile Include="Config.cs" />
         <Compile Include="Execution\LegacyEntrypointExecutionMiddleware.cs" />

@@ -21,17 +21,20 @@ namespace UnisaveWorker
         private readonly MetricsManager metricsManager;
         private readonly Initializer initializer;
         private readonly BackendLoader backendLoader;
+        private readonly SingleThreadedScheduler loopScheduler;
 
         public Startup(
             Config config,
             GracefulShutdownManager shutdownManager,
             MetricsManager metricsManager,
-            Initializer initializer
+            Initializer initializer,
+            SingleThreadedScheduler loopScheduler
         )
         {
             this.config = config;
             this.metricsManager = metricsManager;
             this.initializer = initializer;
+            this.loopScheduler = loopScheduler;
             this.shutdownManager = shutdownManager;
             this.backendLoader = initializer.BackendLoader;
         }
@@ -65,6 +68,8 @@ namespace UnisaveWorker
             
             branch.Use<AccessLoggingMiddleware>(metricsManager);
 
+            // TODO: integrate the single threaded middleware
+            // TODO: into the concurrency management middleware
             branch.Use<ConcurrencyManagementMiddleware>(
                 new ConcurrencyManagementMiddleware.State(
                     RequestCc: config.DefaultRequestConcurrency,
@@ -72,6 +77,7 @@ namespace UnisaveWorker
                     MaxQueueLength: config.DefaultMaxQueueLength
                 )
             );
+            // branch.Use<SingleThreadedMiddleware>(loopScheduler);
             
             branch.Use<InitializationMiddleware>(initializer);
             
