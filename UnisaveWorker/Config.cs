@@ -65,6 +65,15 @@ namespace UnisaveWorker
         /// </summary>
         public int GracefulShutdownSeconds { get; private set; } = 10;
         
+        /// <summary>
+        /// For how much time can the loop thread afford to work on a single
+        /// task, before we consider the thread to be deadlocked.
+        /// This option is not to "solve" deadlocks, just to cause the
+        /// worker to recover and not get stuck. In properly written backend
+        /// code, this should never trigger.
+        /// </summary>
+        public int LoopDeadlockTimeoutSeconds { get; private set; } = 30;
+        
         
         /////////////
         // Methods //
@@ -110,6 +119,10 @@ namespace UnisaveWorker
                 GracefulShutdownSeconds = GetEnvInteger(
                     "WORKER_GRACEFUL_SHUTDOWN_SECONDS",
                     d.GracefulShutdownSeconds
+                ),
+                LoopDeadlockTimeoutSeconds = GetEnvInteger(
+                    "WORKER_LOOP_DEADLOCK_TIMEOUT_SECONDS",
+                    d.LoopDeadlockTimeoutSeconds
                 )
             };
         }

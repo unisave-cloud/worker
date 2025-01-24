@@ -20,7 +20,9 @@ namespace WorkerTests
         [SetUp]
         public void SetUp()
         {
-            scheduler = new LoopScheduler();
+            scheduler = new LoopScheduler(
+                deadlockTimeoutSeconds: 0.5
+            );
         }
 
         [TearDown]
@@ -188,8 +190,11 @@ namespace WorkerTests
                 
                 // do nothing if we don't want to get deadlocked
                 if (!env.ContainsKey("deadlock"))
+                {
+                    Interlocked.Increment(ref finishedRequests);
                     return;
-                
+                }
+
                 // Create a deadlock
                 // -----------------
                 // Wait for a task synchronously, which:

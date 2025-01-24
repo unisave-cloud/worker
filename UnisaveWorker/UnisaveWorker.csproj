@@ -61,6 +61,7 @@
     </ItemGroup>
     <ItemGroup>
         <Compile Include="Concurrency\ConcurrencyManagementMiddleware.cs" />
+        <Compile Include="Concurrency\Loop\DeadlockObserver.cs" />
         <Compile Include="Concurrency\Loop\LoopMiddleware.cs" />
         <Compile Include="Concurrency\Loop\LoopScheduler.cs" />
         <Compile Include="Concurrency\Loop\LoopThread.cs" />

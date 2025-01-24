@@ -69,16 +69,16 @@ namespace UnisaveWorker
             
             branch.Use<AccessLoggingMiddleware>(metricsManager);
 
-            // TODO: integrate the single threaded middleware
+            // TODO: integrate the loop middleware
             // TODO: into the concurrency management middleware
-            branch.Use<ConcurrencyManagementMiddleware>(
-                new ConcurrencyManagementMiddleware.State(
-                    RequestCc: config.DefaultRequestConcurrency,
-                    ThreadCc: config.DefaultThreadConcurrency,
-                    MaxQueueLength: config.DefaultMaxQueueLength
-                )
-            );
-            // branch.Use<SingleThreadedMiddleware>(loopScheduler);
+            // branch.Use<ConcurrencyManagementMiddleware>(
+            //     new ConcurrencyManagementMiddleware.State(
+            //         RequestCc: config.DefaultRequestConcurrency,
+            //         ThreadCc: config.DefaultThreadConcurrency,
+            //         MaxQueueLength: config.DefaultMaxQueueLength
+            //     )
+            // );
+            branch.Use<LoopMiddleware>(loopScheduler);
             
             branch.Use<InitializationMiddleware>(initializer);
             

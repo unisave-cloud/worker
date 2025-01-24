@@ -41,7 +41,9 @@ namespace UnisaveWorker
                 httpClient,
                 config.OwinStartupAttribute
             );
-            loopScheduler = new LoopScheduler();
+            loopScheduler = new LoopScheduler(
+                deadlockTimeoutSeconds: config.LoopDeadlockTimeoutSeconds
+            );
         }
         
         public void Start()

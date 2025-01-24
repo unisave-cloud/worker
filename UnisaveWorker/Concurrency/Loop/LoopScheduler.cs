@@ -35,11 +35,25 @@ namespace UnisaveWorker.Concurrency.Loop
         /// </summary>
         private LoopThread? loopThread;
         
+        /// <summary>
+        /// Observes task execution and triggers deadlock resolution code.
+        /// Is bound to the loop thread and should be discarded with it.
+        /// </summary>
+        private DeadlockObserver? deadlockObserver;
+        
         // protects tasks and the loop thread instance
         private readonly object syncLock = new();
+
+        /// <summary>
+        /// How many seconds should the loop thread not respond for
+        /// in order to treat it as a deadlock
+        /// </summary>
+        private readonly double deadlockTimeoutSeconds;
         
-        public LoopScheduler()
+        public LoopScheduler(double deadlockTimeoutSeconds)
         {
+            this.deadlockTimeoutSeconds = deadlockTimeoutSeconds;
+            
             StartLoopThread();
         }
 
@@ -52,33 +66,16 @@ namespace UnisaveWorker.Concurrency.Loop
                         "There already is a loop thread."
                     );
                 
+                deadlockObserver = new DeadlockObserver(
+                    timeoutSeconds: deadlockTimeoutSeconds,
+                    reportDeadlockHandler: HandleReportedDeadlock
+                );
                 loopThread = new LoopThread(
                     tryPoppingTask: this.TryPoppingTask,
-                    tryExecuteTask: base.TryExecuteTask
+                    tryExecuteTask: base.TryExecuteTask,
+                    deadlockObserver: deadlockObserver
                 );
                 loopThread.Start();
-            }
-        }
-
-        /// <summary>
-        /// Stops the loop thread
-        /// </summary>
-        public void Dispose()
-        {
-            lock (syncLock)
-            {
-                // already disposed, do nothing
-                if (loopThread == null)
-                    return;
-                
-                // signal termination
-                loopThread.BreakTheLoop();
-            
-                // wait for the loop thread to finish
-                loopThread.Join();
-                
-                // we don't want to touch the thread anymore
-                loopThread = null;
             }
         }
 
@@ -153,6 +150,11 @@ namespace UnisaveWorker.Concurrency.Loop
             // via inlining, instead of popping from the queue
             if (taskWasPreviouslyQueued)
                 TryDequeue(task);
+            
+            // report movement
+            // (we might be reporting to another thread here, but it's ok,
+            // it just postpones the inevitable - better than a false positive)
+            deadlockObserver?.ResetTimer();
 
             // try to run the task
             return base.TryExecuteTask(task);
@@ -190,6 +192,57 @@ namespace UnisaveWorker.Concurrency.Loop
             {
                 if (lockTaken)
                     Monitor.Exit(syncLock);
+            }
+        }
+
+        /// <summary>
+        /// Invoked by some deadlock observer, who thinks there's a task
+        /// being processed suspiciously long.
+        /// </summary>
+        /// <param name="sender">Who invoked us</param>
+        private void HandleReportedDeadlock(DeadlockObserver sender)
+        {
+            lock (syncLock)
+            {
+                // there must be a loop thread running,
+                // otherwise the report is for useless
+                if (loopThread == null)
+                    return;
+                
+                // accept reports only from the current deadlock observer
+                if (sender != deadlockObserver)
+                    return;
+                
+                // terminate the existing loop thread
+                // (without joining)
+                loopThread.AbortDueToSuspectedDeadlock();
+                loopThread = null;
+                deadlockObserver = null;
+                
+                // start a new loop thread to handle the waiting tasks
+                StartLoopThread();
+            }
+        }
+
+        /// <summary>
+        /// Stops the loop thread
+        /// </summary>
+        public void Dispose()
+        {
+            lock (syncLock)
+            {
+                // already disposed, do nothing
+                if (loopThread == null)
+                    return;
+                
+                // signal termination
+                loopThread.BreakTheLoop();
+            
+                // wait for the loop thread to finish
+                loopThread.Join();
+                
+                // we don't want to touch the thread anymore
+                loopThread = null;
             }
         }
     }

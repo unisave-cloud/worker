@@ -15,3 +15,4 @@ The worker process can be configured via environment variables:
 | `WORKER_DEFAULT_MAX_QUEUE_LENGTH`    | Maximum number of waiting Unisave requests |
 | `WORKER_OWIN_STARTUP_ATTRIBUTE`      | Name of the `OwinStartup` attribute to look for when loading the game backend's OWIN startup class. See [the API docs](api-game-backend.md) for more info. |
 | `WORKER_GRACEFUL_SHUTDOWN_SECONDS`   | Number of seconds to wait at the longest for pending requests to finish when shutting down. |
+| `WORKER_LOOP_DEADLOCK_TIMEOUT_SECONDS` | For how much time can the loop thread afford to work on a single task, before we consider the thread to be deadlocked. |
