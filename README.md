@@ -35,8 +35,8 @@ The list of environment variables for configuration has a separate [documentatio
 - [External APIs](docs/external-apis.md)
     - [Unisave Requests](docs/api-unisave-requests.md)
     - [Error Codes and Meanings](docs/api-error-codes-and-meanings.md)
-    - [Initialization](api-initialization.md)
-    - [Game Backend](api-game-backend.md)
+    - [Initialization](docs/api-initialization.md)
+    - [Game Backend](docs/api-game-backend.md)
     - Metrics
 - [Code Architecture](docs/code-architecture.md)
 - [Concurrency](docs/concurrency.md)
