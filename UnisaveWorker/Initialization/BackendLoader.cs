@@ -30,7 +30,7 @@ namespace UnisaveWorker.Initialization
         private Assembly? legacyGameAssembly = null;
         
         /// <summary>
-        /// References the backend.dll file
+        /// References the UnisaveFramework.dll file
         /// </summary>
         public Assembly LegacyFrameworkAssembly
             => legacyFrameworkAssembly ?? throw new BackendNotLoadedException();
@@ -56,6 +56,12 @@ namespace UnisaveWorker.Initialization
         public bool HasLegacyStartMethod => legacyStartMethod != null;
 
         /// <summary>
+        /// The version of the Unisave Framework used by the backend code
+        /// (null if not found, the game maybe does not use Unisave Framework)
+        /// </summary>
+        public Version? UnisaveFrameworkVersion { get; private set; } = null;
+
+        /// <summary>
         /// Friendly name of the OwinStartupAttribute
         /// </summary>
         private readonly string owinStartupAttributeName;
@@ -73,6 +79,8 @@ namespace UnisaveWorker.Initialization
             
             FindOwinStartupConfigurationMethod();
             FindLegacyStartMethod();
+
+            FindFrameworkVersion();
             
             stopwatch.Stop();
             Log.Info(
@@ -171,6 +179,18 @@ namespace UnisaveWorker.Initialization
             legacyStartMethod = legacyFrameworkAssembly
                 ?.GetType("Unisave.Runtime.Entrypoint")
                 ?.GetMethod("Start");
+        }
+
+        private void FindFrameworkVersion()
+        {
+            if (legacyFrameworkAssembly == null)
+            {
+                UnisaveFrameworkVersion = null;
+                return;
+            }
+            
+            AssemblyName name = legacyFrameworkAssembly.GetName();
+            UnisaveFrameworkVersion = name.Version;
         }
     }
 }

@@ -68,19 +68,18 @@ namespace UnisaveWorker
             branch.Use<LegacyApiTranslationMiddleware>();
             
             branch.Use<AccessLoggingMiddleware>(metricsManager);
-
-            // TODO: integrate the loop middleware
-            // TODO: into the concurrency management middleware
-            // branch.Use<ConcurrencyManagementMiddleware>(
-            //     new ConcurrencyManagementMiddleware.State(
-            //         RequestCc: config.DefaultRequestConcurrency,
-            //         ThreadCc: config.DefaultThreadConcurrency,
-            //         MaxQueueLength: config.DefaultMaxQueueLength
-            //     )
-            // );
-            branch.Use<LoopMiddleware>(loopScheduler);
             
             branch.Use<InitializationMiddleware>(initializer);
+
+            branch.Use<ConcurrencyManagementMiddleware>(
+                new ConcurrencySettings(
+                    RequestConcurrency: config.DefaultRequestConcurrency,
+                    UseSingleThread: config.DefaultUseSingleThread,
+                    MaxQueueLength: config.DefaultMaxQueueLength
+                ),
+                loopScheduler,
+                backendLoader
+            );
             
             // Unisave request execution via the OWIN entrypoint
             branch.MapWhen(
@@ -94,12 +93,7 @@ namespace UnisaveWorker
             // Unisave request execution via the legacy framework entrypoint
             branch.MapWhen(
                 _ => backendLoader.HasLegacyStartMethod,
-                b => b
-                    .Use<RequestConcurrencyMiddleware>(
-                        /* concurrency: */ 1,
-                        /* max queue length: */ 20
-                    )
-                    .Use<LegacyEntrypointExecutionMiddleware>(backendLoader)
+                b => b.Use<LegacyEntrypointExecutionMiddleware>(backendLoader)
             );
         }
 

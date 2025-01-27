@@ -34,17 +34,17 @@ namespace UnisaveWorker
 
         /// <summary>
         /// Default request concurrency level to use,
-        /// unless overriden by the game backend.
+        /// unless overriden by the game backend or Unisave Framework version.
         /// Null means unlimited.
         /// </summary>
-        public int? DefaultRequestConcurrency { get; private set; } = 500;
+        public int? DefaultRequestConcurrency { get; private set; } = 10;
 
         /// <summary>
-        /// Default thread concurrency level to use,
-        /// unless overriden by the game backend.
-        /// Null means unlimited.
+        /// Whether a single loop thread should be used by default to process
+        /// requests, unless overriden by the game backend
+        /// or Unisave Framework version.
         /// </summary>
-        public int? DefaultThreadConcurrency { get; private set; } = null;
+        public bool DefaultUseSingleThread { get; private set; } = true;
         
         /// <summary>
         /// Default value for the maximum request queue length,
@@ -104,9 +104,9 @@ namespace UnisaveWorker
                     "WORKER_DEFAULT_REQUEST_CONCURRENCY",
                     d.DefaultRequestConcurrency
                 ),
-                DefaultThreadConcurrency = GetEnvNullableInteger(
-                    "WORKER_DEFAULT_THREAD_CONCURRENCY",
-                    d.DefaultThreadConcurrency
+                DefaultUseSingleThread = GetEnvBool(
+                    "WORKER_DEFAULT_USE_SINGLE_THREAD",
+                    d.DefaultUseSingleThread
                 ),
                 DefaultMaxQueueLength = GetEnvInteger(
                     "WORKER_DEFAULT_MAX_QUEUE_LENGTH",

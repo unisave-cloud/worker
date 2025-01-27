@@ -40,6 +40,7 @@ The list of environment variables for configuration has a separate [documentatio
     - Metrics
 - [Code Architecture](docs/code-architecture.md)
 - [Concurrency](docs/concurrency.md)
+    - [Deadlocks](deadlocks.md)
 - [Initialization](docs/initialization.md)
 - [Unisave Environment Variables](docs/unisave-environment-variables.md)
 - [Custom OWIN Environment Keys](docs/custom-owin-environment-keys.md)
