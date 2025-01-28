@@ -80,6 +80,8 @@ namespace UnisaveWorker
                 loopScheduler,
                 backendLoader
             );
+
+            branch.Use<ExecutionTimingMiddleware>();
             
             // Unisave request execution via the OWIN entrypoint
             branch.MapWhen(

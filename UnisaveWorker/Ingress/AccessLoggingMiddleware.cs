@@ -39,15 +39,10 @@ namespace UnisaveWorker.Ingress
         {
             AssignRequestIndex(environment);
             
-            var executionStopwatch = Stopwatch.StartNew();
             await next(environment);
-            executionStopwatch.Stop();
-            
-            environment["worker.ExecutionDuration"]
-                = executionStopwatch.ElapsedMilliseconds / 1000.0;
-            
-            LogAccess(environment, executionStopwatch.ElapsedMilliseconds);
-            UpdateMetrics(environment, executionStopwatch.ElapsedMilliseconds);
+
+            LogAccess(environment);
+            UpdateMetrics(environment);
         }
 
         private void AssignRequestIndex(IDictionary<string, object> environment)
@@ -57,10 +52,7 @@ namespace UnisaveWorker.Ingress
             environment["worker.RequestIndex"] = requestIndex;
         }
 
-        private void LogAccess(
-            IDictionary<string, object> environment,
-            long milliseconds
-        )
+        private void LogAccess(IDictionary<string, object> environment)
         {
             int requestIndex = environment["worker.RequestIndex"] as int? ?? -1;
             
@@ -73,23 +65,47 @@ namespace UnisaveWorker.Ingress
             string status = ctx.Response.StatusCode.ToString();
             string bytesSent = ctx.Response.Headers["Content-Length"] ?? "-";
             
+            double executionDurationSeconds = GetExecutionDurationSeconds(
+                environment
+            );
+            long milliseconds = (long)(executionDurationSeconds * 1000.0);
+            
             // [2023-12-03 21:52:37] R1385 POST /MyFacet/Foo 200 138B 45ms
             Console.WriteLine(
                 $"[{now}] {id} {method} {path} {status} {bytesSent}B {milliseconds}ms"
             );
         }
 
-        private void UpdateMetrics(
-            IDictionary<string, object> environment,
-            long milliseconds
-        )
+        private void UpdateMetrics(IDictionary<string, object> environment)
         {
             var ctx = new OwinContext(environment);
             
+            double executionDurationSeconds = GetExecutionDurationSeconds(
+                environment
+            );
+            
             metricsManager.RecordExecutionRequestFinished(
-                durationSeconds: milliseconds / 1000.0,
+                durationSeconds: executionDurationSeconds,
                 responseSizeBytes: ctx.Response.ContentLength ?? 0
             );
+        }
+
+        /// <summary>
+        /// Extracts execution duration seconds from the OWIN environment
+        /// </summary>
+        private double GetExecutionDurationSeconds(
+            IDictionary<string, object> environment
+        )
+        {
+            if (!environment.TryGetValue(
+                "worker.ExecutionDurationSeconds",
+                out object value
+            ))
+                throw new Exception(
+                    "The execution duration is missing in the OWIN environment."
+                );
+            
+            return (double) value;
         }
     }
 }

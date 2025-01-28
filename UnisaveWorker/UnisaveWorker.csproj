@@ -70,6 +70,7 @@
         <Compile Include="Concurrency\Microsoft\ThreadConcurrencyMiddleware.cs" />
         <Compile Include="Concurrency\RequestConcurrencyMiddleware.cs" />
         <Compile Include="Config.cs" />
+        <Compile Include="Execution\ExecutionTimingMiddleware.cs" />
         <Compile Include="Execution\LegacyEntrypointExecutionMiddleware.cs" />
         <Compile Include="Execution\OwinStartupExecutionMiddleware.cs" />
         <Compile Include="Ingress\AccessLoggingMiddleware.cs" />

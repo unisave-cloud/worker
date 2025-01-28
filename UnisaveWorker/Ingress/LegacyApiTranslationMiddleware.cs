@@ -106,7 +106,7 @@ namespace UnisaveWorker.Ingress
         )
         {
             context.Environment.TryGetValue(
-                "worker.ExecutionDuration",
+                "worker.ExecutionDurationSeconds",
                 out object executionDuration
             );
             

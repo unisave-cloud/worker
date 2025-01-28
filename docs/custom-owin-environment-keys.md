@@ -5,10 +5,4 @@ This is a list of custom OWIN keys set for each environment (each Unisave reques
 - `worker.RequestIndex` Zero-based index of the Unisave request, as received and enqueued. Type `int`. Assigned by `AccessLoggingMiddleware`.
 - `worker.EnvDict` Environment variables that should apply for this request. Type `Dictionary<string, string>`. Assigned by `LegacyApiTranslationMiddleware`. [Learn more](unisave-environment-variables.md).
 - `worker.EnvString` Environment variables as string that should apply for this request. Type `string`. Assigned by `LegacyApiTranslationMiddleware`. [Learn more](unisave-environment-variables.md).
-
-
-## Legacy facet API
-
-Values that are present only because of the `LegacyApiTranslationMiddleware`:
-
-- `worker.ExecutionDuration` Execution duration of the finished request in seconds. Type `double`. Assigned by `AccessLoggingMiddleware`. Later used by the translation middleware.
+- `worker.ExecutionDurationSeconds` Execution duration of the finished request in seconds. Type `double`. Assigned by `ExecutionTimingMiddleware`. Used by the `LegacyApiTranslationMiddleware` and `AccessLoggingMiddleware`.
