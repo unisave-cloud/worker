@@ -16,3 +16,4 @@ The worker process can be configured via environment variables:
 | `WORKER_OWIN_STARTUP_ATTRIBUTE`      | Name of the `OwinStartup` attribute to look for when loading the game backend's OWIN startup class. See [the API docs](api-game-backend.md) for more info. |
 | `WORKER_GRACEFUL_SHUTDOWN_SECONDS`   | Number of seconds to wait at the longest for pending requests to finish when shutting down. |
 | `WORKER_LOOP_DEADLOCK_TIMEOUT_SECONDS` | For how much time can the loop thread afford to work on a single task, before we consider the thread to be deadlocked. |
+| `WORKER_UNHEALTHY_MEMORY_USAGE_BYTES` | How many bytes of memory usage are considered to be unhealthy and cause the worker to switch to the unhealthy state and be restarted. This prevents memory leaks from causing OOM crashes. |

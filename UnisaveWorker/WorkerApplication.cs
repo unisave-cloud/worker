@@ -5,6 +5,7 @@ using System.Reflection;
 using Microsoft.Owin.Hosting;
 using UnisaveWorker.Concurrency;
 using UnisaveWorker.Concurrency.Loop;
+using UnisaveWorker.Health;
 using UnisaveWorker.Ingress;
 using UnisaveWorker.Initialization;
 using UnisaveWorker.Metrics;
@@ -24,6 +25,7 @@ namespace UnisaveWorker
         private readonly HttpClient httpClient;
         private readonly Initializer initializer;
         private readonly LoopScheduler loopScheduler;
+        private readonly HealthManager healthManager;
 
         private IDisposable? httpServer;
         
@@ -44,6 +46,7 @@ namespace UnisaveWorker
             loopScheduler = new LoopScheduler(
                 deadlockTimeoutSeconds: config.LoopDeadlockTimeoutSeconds
             );
+            healthManager = new HealthManager(config);
         }
         
         public void Start()
@@ -80,7 +83,8 @@ namespace UnisaveWorker
                 shutdownManager,
                 metricsManager,
                 initializer,
-                loopScheduler
+                loopScheduler,
+                healthManager
             );
             
             httpServer = WebApp.Start(
@@ -109,6 +113,7 @@ namespace UnisaveWorker
         
         public void Dispose()
         {
+            healthManager.Dispose();
             loopScheduler.Dispose();
             initializer.Dispose();
             metricsManager.Dispose();

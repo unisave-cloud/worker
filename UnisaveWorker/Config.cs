@@ -74,6 +74,15 @@ namespace UnisaveWorker
         /// </summary>
         public int LoopDeadlockTimeoutSeconds { get; private set; } = 30;
         
+        /// <summary>
+        /// How many bytes of memory usage are considered to be unhealthy
+        /// and cause the worker to switch to the unhealthy state and be
+        /// restarted. This prevents memory leaks from causing OOM crashes.
+        /// </summary>
+        public long UnhealthyMemoryUsageBytes { get; private set; }
+            = 200 * 1024 * 1024; // 209715200
+        // worker instances have 250 MB memory limit, so we set this at 200 MB
+        
         
         /////////////
         // Methods //
@@ -123,6 +132,10 @@ namespace UnisaveWorker
                 LoopDeadlockTimeoutSeconds = GetEnvInteger(
                     "WORKER_LOOP_DEADLOCK_TIMEOUT_SECONDS",
                     d.LoopDeadlockTimeoutSeconds
+                ),
+                UnhealthyMemoryUsageBytes = GetEnvLong(
+                    "WORKER_UNHEALTHY_MEMORY_USAGE_BYTES",
+                    d.UnhealthyMemoryUsageBytes
                 )
             };
         }
@@ -152,6 +165,19 @@ namespace UnisaveWorker
             
             if (int.TryParse(s, out int i))
                 return i;
+
+            return defaultValue;
+        }
+        
+        private static long GetEnvLong(string key, long defaultValue = 0L)
+        {
+            string? s = GetEnvString(key);
+
+            if (string.IsNullOrEmpty(s))
+                return defaultValue;
+            
+            if (long.TryParse(s, out long l))
+                return l;
 
             return defaultValue;
         }

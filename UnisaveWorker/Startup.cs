@@ -5,6 +5,7 @@ using Owin;
 using UnisaveWorker.Concurrency;
 using UnisaveWorker.Concurrency.Loop;
 using UnisaveWorker.Execution;
+using UnisaveWorker.Health;
 using UnisaveWorker.Ingress;
 using UnisaveWorker.Initialization;
 using UnisaveWorker.Metrics;
@@ -23,19 +24,22 @@ namespace UnisaveWorker
         private readonly Initializer initializer;
         private readonly BackendLoader backendLoader;
         private readonly LoopScheduler loopScheduler;
+        private readonly HealthManager healthManager;
 
         public Startup(
             Config config,
             GracefulShutdownManager shutdownManager,
             MetricsManager metricsManager,
             Initializer initializer,
-            LoopScheduler loopScheduler
+            LoopScheduler loopScheduler,
+            HealthManager healthManager
         )
         {
             this.config = config;
             this.metricsManager = metricsManager;
             this.initializer = initializer;
             this.loopScheduler = loopScheduler;
+            this.healthManager = healthManager;
             this.shutdownManager = shutdownManager;
             this.backendLoader = initializer.BackendLoader;
         }
@@ -59,7 +63,7 @@ namespace UnisaveWorker
             );
             
             // handle other HTTP requests
-            appBuilder.Route("GET", "/_/health", HealthCheck);
+            appBuilder.Route("GET", "/health", HealthCheck);
             appBuilder.Route("GET", "/metrics", Metrics);
         }
 
@@ -109,7 +113,14 @@ namespace UnisaveWorker
             // respond with 503, which signals unhealthy worker.
             // However, that's when we are shutting down any ways, so it's true.
             
-            await context.SendResponse(200, "OK\n");
+            // The health manager can choose to label the worker as unhealthy
+            // when it thinks it should be restarted by kubernetes. For example,
+            // when the memory usage grows too big due to memory leaks.
+            
+            if (healthManager.GetIsHealthy())
+                await context.SendResponse(200, "OK\n");
+            else
+                await context.SendResponse(503, "Unhealthy\n");
         }
         
         private async Task Metrics(IOwinContext context)

@@ -15,7 +15,7 @@ The services in the context are:
 - **Request Gateway:** This is the entrypoint into the worker system and it forwards backend requests to proper worker instances. This is where the primary traffic comes from.
 - **Prometheus:** It collects worker instance metrics, which are used to measure worker system traffic and monitor its health. It probes the `/metrics` endpoints from the `worker-instances` prometheus job.
 - **Worker System Supervisor:** The supervisor handles worker pool scaling. It probes the `/metrics` endpoint to collect CPU utilization. It side-steps prometheus to remove potential points of failure, and asks the workers directly.
-- **Kubernetes:** The `/_/health` endpoint is probed by kubernetes to determine pod readiness and health.
+- **Kubernetes:** The `/health` endpoint is probed by kubernetes to determine pod readiness and health.
 - **Web API:** In order to initialize, the worker downloads initialization recipe from the web API. The recipe URL is provided either in an environment variable or in a request header field. Recipes are currently hosted by the web API service.
 - **DigitalOcean Spaces:** The initialization recipe lists backend files and their URLs to be downloaded during initialization. These are currently downloaded directly from DigitalOcean Spaces via signed URLs.
 
@@ -38,6 +38,7 @@ The list of environment variables for configuration has a separate [documentatio
     - [Initialization](docs/api-initialization.md)
     - [Game Backend](docs/api-game-backend.md)
     - Metrics
+    - [Health](docs/api-health.md)
 - [Code Architecture](docs/code-architecture.md)
 - [Concurrency](docs/concurrency.md)
     - [Deadlocks](docs/deadlocks.md)
@@ -48,6 +49,7 @@ The list of environment variables for configuration has a separate [documentatio
 - [Graceful Shutdown](docs/graceful-shutdown.md)
 - [Shared `Owin` and `Microsoft.Owin` DLLs](docs/shared-owin-and-ms-owin-ddls.md)
 - [HTTP Request Cancellation](docs/http-request-cancellation.md)
+- [Memory Leakage](docs/memory-leakage.md)
 - Metrics
 
 
