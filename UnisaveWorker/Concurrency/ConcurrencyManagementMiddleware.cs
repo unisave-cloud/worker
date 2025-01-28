@@ -128,6 +128,7 @@ namespace UnisaveWorker.Concurrency
                 // need multiple threads to avoid deadlocks.
                 requestConcurrency = 1;
                 useSingleThread = false;
+                maxQueueLength = 30; // longer queue, since concurrency is off
             }
             
             // === override based on the unisave environment variables ===
