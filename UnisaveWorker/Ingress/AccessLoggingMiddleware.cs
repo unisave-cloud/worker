@@ -101,9 +101,9 @@ namespace UnisaveWorker.Ingress
                 "worker.ExecutionDurationSeconds",
                 out object value
             ))
-                throw new Exception(
-                    "The execution duration is missing in the OWIN environment."
-                );
+                // can happen, for example when the request is bounced due
+                // to the queue being full
+                return 0.0;
             
             return (double) value;
         }
