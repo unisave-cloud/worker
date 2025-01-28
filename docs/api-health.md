@@ -26,14 +26,14 @@ https://github.com/unisave-cloud/deployment/blob/master/chart/unisave/templates/
 Here's an example of the probe:
 
 ```
-http-get http://:8080/health delay=0s timeout=1s period=1s #success=1 #failure=3
+http-get http://:8080/health delay=3s timeout=1s period=1s #success=1 #failure=3
 ```
 
 Explainer:
 
 - Probe via HTTP GET (instead of shell command)
 - The URL to probe, 2xx response is a success, 5xx response is a failure
-- There is no startup delay
+- It waits for 3 seconds after startup before the first probe is sent
 - It waits 1s for the HTTP request to complete
 - It pings every 1 second
 - It takes 1 success to switch to healthy state
