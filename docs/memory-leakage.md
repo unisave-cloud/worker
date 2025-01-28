@@ -6,6 +6,6 @@ It's not clear where the leak stems from, I have to debug that. But either way, 
 
 The worker currently solves it by tracking its memory usage and when it outgrows a threshold set by the `WORKER_UNHEALTHY_MEMORY_USAGE_BYTES` environment variable, it switches itself into the unhealthy state. This causes kubernetes to restart the container, thereby cleaning the memory.
 
-This signalled approach is better than just killing itself, as it allows kubernetes to start the new worker instance before killing the old one.
+This signalled approach is better than just killing itself, as it allows kubernetes to redirect traffic away from the worker before killing it.
 
 The responsible class is the `MemoryLeakageMonitor`, being a part of the `HealthManager` and using `MemoryUsageGauge.GetMemoryUsageBytes` static method to get the memory usage.
