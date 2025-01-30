@@ -11,10 +11,10 @@ namespace UnisaveWorker.Metrics
             = new Dictionary<string, string>();
 
         public string MetricName { get; }
-        public string MetricHelp { get; }
-        public string MetricType { get; }
+        public string? MetricHelp { get; }
+        public string? MetricType { get; }
 
-        protected PrometheusMetric(string name, string help, string type)
+        protected PrometheusMetric(string name, string? help, string? type)
         {
             MetricName = name ?? throw new ArgumentNullException(nameof(name));
             MetricHelp = help;

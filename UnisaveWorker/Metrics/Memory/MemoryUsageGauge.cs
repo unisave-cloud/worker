@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.IO;
 
 namespace UnisaveWorker.Metrics.Memory
@@ -25,12 +26,26 @@ namespace UnisaveWorker.Metrics.Memory
                 ulong bytes = ulong.Parse(bytesText);
                 return bytes;
             }
-            else
+            else if (File.Exists("/sys/fs/cgroup/memory.current"))
             {
                 string bytesText = File.ReadAllText(
                     "/sys/fs/cgroup/memory.current"
                 );
                 ulong bytes = ulong.Parse(bytesText);
+                return bytes;
+            }
+            else
+            {
+                // https://askubuntu.com/questions/392262/
+                // how-to-monitor-the-memory-consumed-by-a-process
+                int pid = Process.GetCurrentProcess().Id;
+                string text = File.ReadAllText(
+                    $"/proc/{pid}/statm"
+                );
+                string[] parts = text.Split(' ');
+                // resident set size is the second number
+                ulong pages = ulong.Parse(parts[1]);
+                ulong bytes = pages * 4096; // page size is 4K
                 return bytes;
             }
         }

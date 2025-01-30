@@ -9,7 +9,7 @@ namespace UnisaveWorker.Metrics.Cpu
     /// </summary>
     public class CpuUsageCounter : PrometheusMetric
     {
-        public CpuUsageCounter(string name, string help = null)
+        public CpuUsageCounter(string name, string? help = null)
             : base(name, help, "counter") { }
 
         protected override double GetMetricValue()
@@ -29,7 +29,7 @@ namespace UnisaveWorker.Metrics.Cpu
             }
             else
             {
-                string line = File.ReadLines(
+                string? line = File.ReadLines(
                     "/sys/fs/cgroup/cpu.stat"
                 ).FirstOrDefault(l => l.StartsWith("usage_usec"));
 
