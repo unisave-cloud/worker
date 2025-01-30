@@ -1,0 +1,52 @@
+############
+# BUILDING #
+############
+
+FROM mcr.microsoft.com/dotnet/sdk:6.0 AS builder
+
+RUN mkdir -p /worker-build
+COPY ./ /worker-build
+
+RUN dotnet restore /worker-build/DotnetUnisaveWorker/DotnetUnisaveWorker.csproj
+
+RUN dotnet publish \
+    -c Release \
+    -o /worker-build/out \
+    /worker-build/DotnetUnisaveWorker/DotnetUnisaveWorker.csproj
+
+
+###########
+# RUNNING #
+###########
+
+FROM mcr.microsoft.com/dotnet/aspnet:6.0
+
+# include curl in the image, may become useful
+RUN apt-get update \
+    && apt-get install -y curl
+
+# worker folder
+RUN mkdir -p /worker
+COPY --from=builder /worker-build/out /worker
+
+# game folder
+RUN mkdir -p /game
+
+# user
+RUN groupadd -g 1000 worker_group && \
+    useradd -u 1000 -m -s /bin/bash -g worker_group worker_user
+RUN chown worker_user /game
+USER worker_user
+
+# workdir
+WORKDIR /game
+
+# environment variables
+ENV WORKER_HTTP_URL=http://*:8080
+
+# ports
+EXPOSE 8080
+
+# entrypoint
+ENTRYPOINT ["/worker/DotnetUnisaveWorker"]
+CMD []

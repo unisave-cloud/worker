@@ -1,21 +1,23 @@
 ﻿using System;
 using Mono.Unix;
 using Mono.Unix.Native;
+using UnisaveWorker;
 
-namespace UnisaveWorker
+namespace MonoUnisaveWorker
 {
     public class Program
     {
         public static void Main(string[] args)
         {
             Config config = Config.LoadFromEnv();
+            var starter = new KatanaHttpServerStarter();
             
-            using (var app = new WorkerApplication(config))
+            using (var app = new WorkerApplication(config, starter))
             {
                 app.Start();
                 
                 WaitForTermination();
-
+                
                 app.Stop();
             }
             

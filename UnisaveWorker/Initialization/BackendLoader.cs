@@ -112,9 +112,7 @@ namespace UnisaveWorker.Initialization
                     continue;
                 
                 // load the assembly
-                Assembly assembly = Assembly.LoadFile(
-                    Path.GetFullPath(filePath) // needs to be an absolute path
-                );
+                Assembly assembly = Assembly.LoadFrom(filePath);
                 
                 // remember all assemblies
                 assemblies.Add(assembly);

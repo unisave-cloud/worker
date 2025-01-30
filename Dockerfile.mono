@@ -2,12 +2,17 @@
 # BUILDING #
 ############
 
-FROM mono:6.12.0 AS builder
+FROM mcr.microsoft.com/dotnet/sdk:6.0 AS builder
 
 RUN mkdir -p /worker-build
 COPY ./ /worker-build
 
-RUN msbuild -target:Rebuild -property:Configuration=Release /worker-build/UnisaveWorker/UnisaveWorker.csproj
+RUN dotnet restore /worker-build/MonoUnisaveWorker/MonoUnisaveWorker.csproj
+
+RUN dotnet publish \
+    -c Release \
+    -o /worker-build/out \
+    /worker-build/MonoUnisaveWorker/MonoUnisaveWorker.csproj
 
 
 ###########
@@ -32,7 +37,7 @@ RUN ls /etc/ssl/certs/ \
 
 # worker folder
 RUN mkdir -p /worker
-COPY --from=builder /worker-build/UnisaveWorker/bin/Release /worker
+COPY --from=builder /worker-build/out /worker
 
 # game folder
 RUN mkdir -p /game
@@ -53,5 +58,5 @@ ENV WORKER_HTTP_URL=http://*:8080
 EXPOSE 8080
 
 # entrypoint
-ENTRYPOINT ["mono", "--debug", "/worker/UnisaveWorker.exe"]
+ENTRYPOINT ["mono-sgen", "--debug", "/worker/MonoUnisaveWorker.exe"]
 CMD []

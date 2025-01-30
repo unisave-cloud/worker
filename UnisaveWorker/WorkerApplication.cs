@@ -2,8 +2,6 @@ using System;
 using System.Diagnostics;
 using System.Net.Http;
 using System.Reflection;
-using Microsoft.Owin.Hosting;
-using UnisaveWorker.Concurrency;
 using UnisaveWorker.Concurrency.Loop;
 using UnisaveWorker.Health;
 using UnisaveWorker.Ingress;
@@ -19,6 +17,7 @@ namespace UnisaveWorker
     public class WorkerApplication : IDisposable
     {
         private readonly Config config;
+        private readonly IHttpServerStarter httpServerStarter;
 
         private readonly GracefulShutdownManager shutdownManager;
         private readonly MetricsManager metricsManager;
@@ -29,9 +28,13 @@ namespace UnisaveWorker
 
         private IDisposable? httpServer;
         
-        public WorkerApplication(Config config)
+        public WorkerApplication(
+            Config config,
+            IHttpServerStarter httpServerStarter
+        )
         {
             this.config = config;
+            this.httpServerStarter = httpServerStarter;
             
             shutdownManager = new GracefulShutdownManager();
             metricsManager = new MetricsManager(
@@ -86,8 +89,8 @@ namespace UnisaveWorker
                 loopScheduler,
                 healthManager
             );
-            
-            httpServer = WebApp.Start(
+
+            httpServer = httpServerStarter.Start(
                 url: config.HttpUrl, // e.g. "http://*:8080"
                 startup: startup.Configuration
             );

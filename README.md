@@ -53,6 +53,35 @@ The list of environment variables for configuration has a separate [documentatio
 - Metrics
 
 
+## After Cloning
+
+Restore NuGet packages:
+
+```bash
+dotnet restore
+```
+
+
+## Dotnet CLI
+
+The project is built with the `dotnet` utility. Rider uses similar commands under the hood.
+
+```bash
+# build all projects
+dotnet build
+
+# build one project
+dotnet build DotnetUnisaveWorker/DotnetUnisaveWorker.csproj
+
+# build a project for production
+dotnet publish -c Release DotnetUnisaveWorker/DotnetUnisaveWorker.csproj
+# can specify output folder "out" with "-o out"
+
+# - dotnet core projects are built as standalone executables
+# - old framework projects are built as .exe that should be run via mono
+```
+
+
 ## Testing
 
 To start the worker after cloning the repo and test it before deployment, you can apply progressively more complex tests:
@@ -71,12 +100,14 @@ Build the docker container:
 
 ```bash
 make build
+make build-mono
 ```
 
 Push the container to the DigitalOcean registry:
 
 ```bash
 make push
+make push-mono
 ```
 
 If the DigitalOcean registry authentication expires, run:
