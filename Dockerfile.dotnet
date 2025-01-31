@@ -2,7 +2,7 @@
 # BUILDING #
 ############
 
-FROM mcr.microsoft.com/dotnet/sdk:6.0 AS builder
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS builder
 
 RUN mkdir -p /worker-build
 COPY ./ /worker-build
@@ -19,7 +19,7 @@ RUN dotnet publish \
 # RUNNING #
 ###########
 
-FROM mcr.microsoft.com/dotnet/aspnet:6.0
+FROM mcr.microsoft.com/dotnet/aspnet:8.0
 
 # include curl in the image, may become useful
 RUN apt-get update \
