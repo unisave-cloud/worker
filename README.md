@@ -39,6 +39,7 @@ The list of environment variables for configuration has a separate [documentatio
     - [Game Backend](docs/api-game-backend.md)
     - Metrics
     - [Health](docs/api-health.md)
+- [Development Setup](docs/development-setup.md)
 - [Code Architecture](docs/code-architecture.md)
 - [Concurrency](docs/concurrency.md)
     - [Deadlocks](docs/deadlocks.md)
@@ -60,6 +61,8 @@ Restore NuGet packages:
 ```bash
 dotnet restore
 ```
+
+Then read the [Development Setup](docs/development-setup.md) documentation page to see how to develop and debug the worker.
 
 
 ## Dotnet CLI
