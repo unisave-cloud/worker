@@ -49,7 +49,7 @@ namespace UnisaveWorker.Ingress
             else
             {
                 // e.g. all worker error responses
-                CopyUnknownResponseOver(
+                await CopyUnknownResponseOver(
                     context,
                     actualResponseStream,
                     fakeResponseStream
@@ -221,7 +221,7 @@ namespace UnisaveWorker.Ingress
             return env;
         }
 
-        private void CopyUnknownResponseOver(
+        private async Task CopyUnknownResponseOver(
             IOwinContext context,
             Stream actualResponseStream,
             MemoryStream fakeResponseStream
@@ -231,7 +231,14 @@ namespace UnisaveWorker.Ingress
             context.Response.Body = actualResponseStream;
             
             // write the fake stream contents into the actual response stream
-            fakeResponseStream.WriteTo(actualResponseStream);
+            int receivedBytes = int.Parse(
+                context.Response.Headers["Content-Length"]
+            );
+            var m = new MemoryStream(
+                fakeResponseStream.GetBuffer(), 0,
+                receivedBytes, writable: false
+            );
+            await m.CopyToAsync(actualResponseStream);
             actualResponseStream.Close();
         }
     }
