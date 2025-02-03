@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Json;
+using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Owin;
 using Owin;
@@ -73,13 +74,16 @@ namespace UnisaveWorker
                 return;
             }
             
+            // string to bytes
+            byte[] binaryBody = Encoding.UTF8.GetBytes(body);
+            
             // send response with body
             context.Response.Headers["Content-Length"]
-                = body.Length.ToString();
+                = binaryBody.Length.ToString();
 
             try
             {
-                await context.Response.WriteAsync(body);
+                await context.Response.WriteAsync(binaryBody);
             }
             catch (IOException e)
             {
