@@ -38,6 +38,10 @@ namespace UnisaveWorker.Ingress
             
             await next(environment);
 
+            // if the client gave up, we can discard the response
+            if (context.Request.CallCancelled.IsCancellationRequested)
+                return;
+
             if (context.Response.StatusCode == 200)
             {
                 await TranslateResponse(

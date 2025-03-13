@@ -73,6 +73,7 @@ namespace UnisaveWorker.Ingress
             long milliseconds = (long)(executionDurationSeconds * 1000.0);
             
             // [2023-12-03 21:52:37] R1385 POST /MyFacet/Foo 200 138B 45ms
+            Console.ResetColor();
             Console.WriteLine(
                 $"[{now}] {id} {method} {path} {status} {bytesSent}B {milliseconds}ms"
             );

@@ -134,8 +134,16 @@ namespace UnisaveWorker.Concurrency
             {
                 // ignore the request if it was cancelled while waiting
                 if (context.Request.CallCancelled.IsCancellationRequested)
+                {
+                    int requestIndex = environment["worker.RequestIndex"]
+                        as int? ?? -1;
+                    Log.Warning(
+                        $"Ignoring request {requestIndex}, it just dequeued " +
+                        $"but the client already closed connection."
+                    );
                     return;
-                
+                }
+
                 // process the request
                 await next(environment);
             }
