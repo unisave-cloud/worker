@@ -75,10 +75,11 @@ Optionally also docker to build containers and minikube with the development clu
 - Build both containers `make build && make build-mono`
 - Push them to the registry `make push && make push-mono`
   - If the DigitalOcean registry authentication expires, run `doctl registry login`
-- Update worker version in the `deployment` repository and deploy to the minikube cluster
+- Update worker version in the `deployment` repository (the `values.yaml` file in`workerSystem.workerImage`) and deploy to the minikube cluster (`make ingrade-dev`)
 - Run UnisaveFixture tests against the local cluster
 - Run the locust Engine Evolution test against the local cluster
 - Deploy updates to the production cluster
+  - Go through the `deployment` repository deployment process
 - Check that requests are handled properly
 - Commit the version update to github
 - Create a github release page
