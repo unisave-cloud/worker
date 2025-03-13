@@ -56,7 +56,9 @@ namespace UnisaveWorker.Ingress
         {
             int requestIndex = environment["worker.RequestIndex"] as int? ?? -1;
             
-            string id = "R" + requestIndex; // will be request ID sent via header
+            // will be request ID sent via header,
+            // but still keep the per-worker indexing as well
+            string id = "R" + requestIndex;
             string now = DateTime.UtcNow.ToString("yyyy-dd-MM H:mm:ss");
             
             var ctx = new OwinContext(environment);
@@ -74,6 +76,14 @@ namespace UnisaveWorker.Ingress
             Console.WriteLine(
                 $"[{now}] {id} {method} {path} {status} {bytesSent}B {milliseconds}ms"
             );
+            
+            // log requests where the client closes connection
+            if (ctx.Request.CallCancelled.IsCancellationRequested)
+            {
+                Log.Warning(
+                    $"Response for {id} discarded, client closed connection."
+                );
+            }
         }
 
         private void UpdateMetrics(IDictionary<string, object> environment)

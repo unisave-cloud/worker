@@ -62,7 +62,9 @@ Restore NuGet packages:
 dotnet restore
 ```
 
-Then read the [Development Setup](docs/development-setup.md) documentation page to see how to develop and debug the worker.
+## Development
+
+Read the [Development Setup](docs/development-setup.md) documentation page to see how to develop and debug the worker.
 
 
 ## Dotnet CLI
@@ -93,30 +95,3 @@ To start the worker after cloning the repo and test it before deployment, you ca
 2. **Locust worker testing:** In [locust](https://github.com/unisave-cloud/locust?tab=readme-ov-file#test-suite-overview) repository, there are *Worker* tests, that are designed to be run against a worker process running inside Rider. Start with the [Worker Echo Test](https://github.com/unisave-cloud/locust/blob/master/docs/worker-echo.md) to see how to initialize the worker and how to send individual requests. Then use the [Worker Mixed Load Test](https://github.com/unisave-cloud/locust/blob/master/docs/worker-mixed-load.md) to see how the worker performs in a complex concurrent scenario.
 3. **Locust against docker:** You can do the same setup, but run the tests against `make run` docker container with limited memory and CPU allocation to see how it breaks when overwhelmed.
 4. **Locust minikube:** You can build the worker and run it in the minikube cluster and use [Engine Evolution Test](https://github.com/unisave-cloud/locust/blob/master/docs/engine-evolution.md) to stress the worker in the context of the whole cluster to see how it scales to multiple instances. You can then in addition start dropping in bombs (long timeout requests) to see how it handles those.
-
-
-## Deployment
-
-The development and production builds differ only in the version stored in `AssemblyInfo.cs`. The developments ones have the `-dev` suffix. The deployment for both is then identical:
-
-Build the docker container:
-
-```bash
-make build
-make build-mono
-```
-
-Push the container to the DigitalOcean registry:
-
-```bash
-make push
-make push-mono
-```
-
-If the DigitalOcean registry authentication expires, run:
-
-```bash
-doctl registry login
-```
-
-Update the worker version in the `deployment` repository and run the `ingrade` to update the kubernetes deployment (minikube or production).

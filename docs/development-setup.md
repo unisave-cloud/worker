@@ -1,4 +1,4 @@
-# Development Setup
+# Development Setup (🤖 worker)
 
 You need Rider and .NET SDK. [Install](https://learn.microsoft.com/en-us/dotnet/core/install/linux-ubuntu-install?tabs=dotnet8&pivots=os-linux-ubuntu-2204#install-the-sdk) the SDK 8.0:
 
@@ -13,7 +13,7 @@ Optionally also docker to build containers and minikube with the development clu
 ## Setting up
 
 - Clone the repo `git clone git@github.com:unisave-cloud/worker.git`
-- Restore packages `dotnet restore`
+- Follow the [After cloning](../README.md#after-cloning) checklist in the root README file
 
 
 ## New feature development
@@ -35,7 +35,9 @@ Optionally also docker to build containers and minikube with the development clu
 
 - Start the project in Rider (plain or with the debugger)
 - Use `curl localhost:8080/foobar` to probe non-unisave request endpoints
-- Use the [locust repository](https://github.com/unisave-cloud/locust) to send unisave requests towards the process (it will trigger lazy initialization), e.g. `.venv/bin/python3 -m app.common.worker.WorkerClient Echo.EchoFacet/Echo '["Hello world!"]'`
+- Use the [locust repository](https://github.com/unisave-cloud/locust) to send unisave requests towards the process (it will trigger lazy initialization)
+  - e.g. `.venv/bin/python3 -m app.common.worker.WorkerClient Echo.EchoFacet/Echo '["Hello world!"]'`
+  - or `.venv/bin/python3 -m app.common.worker.WorkerClient WorkerFacet/TaskDelay '[1.0]'`
 - Start the locust Engine Evolution simulation pointed at the `localhost:8080` worker endpoint to simulate realistic long-running load
 
 
@@ -69,13 +71,14 @@ Optionally also docker to build containers and minikube with the development clu
 
 ## Deploying new version (10 - 30 min)
 
-- remove the `-dev` suffix from the assembly info
-- build both containers `make build && make build-mono`
-- push them to the registry `make push && make push-mono`
-- update worker version in the deployment repository and deploy to the minikube cluster
-- run UnisaveFixture tests against the local cluster
-- run the locust Engine Evolution test against the local cluster
-- deploy updates to the production cluster
-- check that requests are handled properly
-- commit the version update to github
-- create a github release page
+- Remove the `-dev` suffix from the `AssemblyInfo.cs`
+- Build both containers `make build && make build-mono`
+- Push them to the registry `make push && make push-mono`
+  - If the DigitalOcean registry authentication expires, run `doctl registry login`
+- Update worker version in the `deployment` repository and deploy to the minikube cluster
+- Run UnisaveFixture tests against the local cluster
+- Run the locust Engine Evolution test against the local cluster
+- Deploy updates to the production cluster
+- Check that requests are handled properly
+- Commit the version update to github
+- Create a github release page
