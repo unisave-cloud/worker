@@ -162,7 +162,22 @@ namespace UnisaveWorker.Concurrency
                     throw new QueueIsFullException();
                 
                 // else enter the queue
-                tcs = new TaskCompletionSource<object?>();
+                tcs = new TaskCompletionSource<object?>(
+                    // IMPORTANT! If thread-blocking requests bunch up,
+                    // the tcs.SetResult() method hijacks the thread to
+                    // run other requests that called await, instead of
+                    // finishing the just-completed request and let it send
+                    // its response to the client. The end result is that
+                    // this bunch of requests all wait for the last request
+                    // in the bunch, and then they all finish at the same time.
+                    // This option makes sure those other requests are only
+                    // queued to be run, but not immediately synchronously run.
+                    //
+                    // https://stackoverflow.com/questions/39296587/in-which-
+                    // case-does-taskcompletionsource-setresult-run-the-
+                    // continuation-synchro
+                    TaskCreationOptions.RunContinuationsAsynchronously
+                );
                 waitingRequests.Enqueue(tcs);
             }
             
